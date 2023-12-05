@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico"/>
+  <title>USTC小黑屋</title>
+  <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.5.1/css/font-awesome.css"> -->
+  <link rel="stylesheet" href="assets/fontawesome/css/fontawesome.min.css"/>
+  <link rel="stylesheet" href="assets/fontawesome/css/solid.min.css"/>
+  <script src="assets/jquery.min.js"></script>
+  <script src="src/main.js"></script>
+  <link rel="stylesheet" href="src/main.css"/>
+</head>
+
+<body>
+  <header>
+    <span id="stage">大一</span>
+
+    <span id="tabs">
+      <span id="tab_dorm">宿舍</span>
+      <span id="tab_campus">校园</span>
+      <span id="tab_thesis">导师</span>
+    </span>
+
+    <span id="event">特殊事件标题</span>
+
+    <!-- <span id="advancement">新成就名称</span> -->
+  </header>
+  
+  <div id="mouse_box"></div>
+
+  <span id="dorm">
+    <div id="log_wrapper">
+      <div id="log_hidder"></div>
+      <div id="log">
+        建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。<br/>建造者添了柴火。<br/>房间很冷。 
+      </div>
+    </div>
+    <div id="adjust_and_weapon">
+      <div id="adjust">
+        <table id="adjust">
+          <tr id="rest">
+            <td width="40%" class="subject">休息时间</td> <td>20</td> <td width="45%"></td>
+          </tr>
+          <tr id="math_inc">
+            <td class="subject">数学</td> <td>0</td> <td><i class="fas fa-angle-up"></i>&nbsp;<i class="fas fa-angle-down"></i>&nbsp;<i class="fas fa-angles-up"></i>&nbsp;<i class="fas fa-angles-down"></i></td>
+          </tr>
+          <tr id="phys_inc">
+            <td class="subject">物理</td> <td>0</td> <td><i class="fas fa-angle-up"></i>&nbsp;<i class="fas fa-angle-down"></i>&nbsp;<i class="fas fa-angles-up"></i>&nbsp;<i class="fas fa-angles-down"></i></td>
+          </tr>
+          <tr id="chem_inc">
+            <td class="subject">化学</td> <td>0</td> <td><i class="fas fa-angle-up"></i>&nbsp;<i class="fas fa-angle-down"></i>&nbsp;<i class="fas fa-angles-up"></i>&nbsp;<i class="fas fa-angles-down"></i></td>
+          </tr>
+        </table>
+      </div>
+      <div id="weapon">
+        <div id="produce_weapon">
+          制造
+          <div class="active_box" id="sword">剑</div>
+          <div class="active_box" id="gun">枪</div>
+          <div class="active_box" id="bullet">子弹</div>
+          <div class="active_box" id="rpg">火箭筒</div>
+          <div class="active_box" id="cannonball">炮弹</div>
+          <div class="active_box" id="laser">激光武器</div>
+        </div>
+        <div id="study_weapon">
+          研究
+          <div class="active_box" id="powder">火药</div>
+          <div class="active_box" id="dynamite">炸药</div>
+        </div>
+      </div>
+    </div>
+    <div id="data_wrapper">
+      <div id="data">
+        <table>
+          <tr id="math_value">
+            <td>数学能力</td> <td style="text-align: right;">0</td>
+          </tr>
+          <tr id="phys_value">
+            <td>物理能力</td> <td style="text-align: right;">0</td>
+          </tr>
+          <tr id="chem_value">
+            <td>化学能力</td> <td style="text-align: right;">0</td>
+          </tr>
+          <tr id="bow_count">
+            <td>弓</td> <td style="text-align: right;">3</td>
+          </tr>
+          <tr id="arrow_count">
+            <td>箭</td> <td style="text-align: right;">3</td>
+          </tr>
+          <tr id="sword_count">
+            <td>剑</td> <td style="text-align: right;">3</td>
+          </tr>
+          <tr id="gun_count">
+            <td>枪</td> <td style="text-align: right;">4</td>
+          </tr>
+          <tr id="bullet_count">
+            <td>子弹</td> <td style="text-align: right;">40</td>
+          </tr>
+          <tr id="rpg_count">
+            <td>火箭筒</td> <td style="text-align: right;">2</td>
+          </tr>
+          <tr id="cannonball_count">
+            <td>炮弹</td> <td style="text-align: right;">20</td>
+          </tr>
+          <tr id="laser_count">
+            <td>激光武器</td> <td style="text-align: right;">20</td>
+          </tr>
+          <tr id="medicine_count">
+            <td>治疗药水</td> <td style="text-align: right;">10</td>
+          </tr>
+          <tr id="avoid_hit"><td>避实就虚</td><td></td></tr>
+          <tr id="one_library"><td>学富五车</td><td></td></tr>
+          <tr id="two_libraries"><td>才高八斗</td><td></td></tr>
+        </table>
+      </div>
+    </div>
+  </span>
+  <footer>
+    <div id="footer_content">v0.1</div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,133 @@
+html { user-select: none; }
+header {
+  user-select: none;
+  margin: 20px;
+  font-size: 20px;
+  margin-bottom: 35px;
+}
+header #stage {
+  margin-right: 30px;
+}
+#tabs > * {
+  user-select: none;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+#tabs > #tab_dorm {
+  display: inherit;
+  text-decoration: underline;
+}
+#event, #advancement {
+  border-color: black;
+  border-style: solid;
+  padding: 8px;
+  margin-left: 30px;
+}
+
+#dorm {
+  margin-top: 20px;
+  display: block;
+  padding-left: 30px;
+}
+#dorm > * {
+  float: left;
+  padding: 10px;
+}
+#log_wrapper { width: 150px; }
+#adjust_and_weapon { width: 220px; }
+#data_wrapper { width: 200px; }
+
+#log_hidder {
+  position: absolute;
+  top: 80px;
+  left: 30px;
+  min-height: calc(100% - 80px);
+  width: 170px;
+  z-index: 1;
+  background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+}
+
+#adjust {
+  border-style: solid;
+  padding: 5px;
+}
+table#adjust {
+  border-style: none;
+  width: 100%;
+}
+table#adjust td {
+  text-align: right;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+table#adjust td.subject { text-align: left; }
+
+#weapon {
+  display: block;
+  margin-right: 10px;
+  margin-top: 10px;
+}
+#weapon > * { float: left; width: 45%;}
+#produce_weapon {
+  margin-right: 5%;
+}
+#study_weapon {
+  margin-left: 5%;
+}
+
+.active_box {
+  border-style: solid;
+  padding: 10px;
+  width: 80px;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.active_box:hover {
+  text-decoration: underline;
+}
+
+.inactive_box {
+  border-style: solid;
+  padding: 10px;
+  width: 80px;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: grey;
+}
+
+#data {
+  border-style: solid;
+  padding: 10px;
+}
+#data > table {
+  width: 100%;
+}
+
+#mouse_box {
+  border-style: solid;
+  padding: 3px;
+  position: absolute;
+  background-color: white;
+  z-index: 1;
+  display: none;
+}
+
+/* DOM 元素的掩盖，避免在 JS 未加载完毕时剧透剧情 */
+#data tr:not(#math_value), #phys_inc, #chem_inc {
+  display: none;
+}
+
+footer {
+  position: absolute;
+  height: 50px;
+  width: 100%;
+  left: 0px;
+  top: calc(100% - 50px);
+}
+#footer_content {
+  display: block;
+  float: right;
+  margin-right: 30px;
+}
