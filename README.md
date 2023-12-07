@@ -1,4 +1,4 @@
-# USTCdarkroom.github.io
+# USTC 小黑屋
 
 > 起床。睡眼朦胧。检查时间。奔向教室。
 
