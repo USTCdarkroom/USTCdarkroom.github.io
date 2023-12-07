@@ -1,2 +1,5 @@
 # USTCdarkroom.github.io
-一款致敬 adarkroom 的中国科大风格网页游戏。
+
+> 起床。睡眼朦胧。检查时间。奔向教室。
+
+一款致敬 [adarkroom](https://doublespeakgames.github.io/adarkroom/?lang=zh_cn) 的中国科大风格网页游戏。
