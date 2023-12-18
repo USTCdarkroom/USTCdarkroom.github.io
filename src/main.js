@@ -46,10 +46,10 @@ let lastMoveTimeStamp = 0, changingCampus = false;
 
 // 随机事件
 let showEvent = false;
-let currnet_event = 0;
+let currentEvent = 0;
 
 // 成就
-let current_achieve = 0;
+let currentAchieve = 0;
 
 // 背包
 let velocity = 1;
@@ -581,31 +581,31 @@ function prepareEvent() {
   let prob = 1 / 300;
   let checkEvent = () => {
     if (nowTab == 'dorm' && !showEvent && Math.random() < prob) {
-      currnet_event++;
-      let cur = currnet_event;
+      currentEvent++;
+      let cur = currentEvent;
 
       showEvent = true;
       $(`#dark_filter`).css("display", "block");
       $(`#event_box`).css("display", "block");
 
-      let eventid = Math.floor(Math.random() * events.length);
-      $(`#event_text`).text(events[eventid].event);
+      let eventId = Math.floor(Math.random() * events.length);
+      $(`#event_text`).text(events[eventId].event);
 
-      for (let i = 0; i < events[eventid].opt.length; i++) {
+      for (let i = 0; i < events[eventId].opt.length; i++) {
         $(`#event_opt${i}`).css("display", "block");
-        $(`#event_opt${i}`).text(events[eventid].opt[i].txt);
+        $(`#event_opt${i}`).text(events[eventId].opt[i].txt);
       }
-      if (events[eventid].opt.length == 1) {
+      if (events[eventId].opt.length == 1) {
         $(`#event_opt1`).css("display", "none");
       }
 
-      for (let i = 0; i < events[eventid].opt.length; i++) {
+      for (let i = 0; i < events[eventId].opt.length; i++) {
         $(`#event_opt${i}`).on('mousedown', () => {
-          if (cur != currnet_event) return;
+          if (cur != currentEvent) return;
           $(`#dark_filter`).css("display", "none");
           $(`#event_box`).css("display", "none");
           showEvent = false;
-          events[eventid].opt[i].res();
+          events[eventId].opt[i].res();
           updateDom();
         });
       }
@@ -616,7 +616,7 @@ function prepareEvent() {
 
 function makeAchievement(achieveId) {
   if (achieved.indexOf(achieveId) != -1) return;
-  let remain_time = 3000;
+  let remainTime = 3000;
 
   let achieveIndex = -1;
   for (let i = 0; i < achieves.length; i++)
@@ -625,7 +625,7 @@ function makeAchievement(achieveId) {
 
   // console.log(achieveIndex);
   if (achieveIndex == -1) return;
-  current_achieve = achieveIndex;
+  currentAchieve = achieveIndex;
 
   $(`#achievement_text`).text(achieves[achieveIndex].name);
   $(`#achievement_text`).css("display", "block");
@@ -633,12 +633,12 @@ function makeAchievement(achieveId) {
   $(`#achievement_box`).css("display", "block");
 
   setTimeout(() => {
-    if (current_achieve == achieveIndex) {
+    if (currentAchieve == achieveIndex) {
       $(`#achievement_text`).css("display", "none");
       $(`#reach_achievement`).css("display", "none");
       $(`#achievement_box`).css("display", "none");
     }
-  }, remain_time);
+  }, remainTime);
   achieved.push(achieveId);
   updateDom();
 }
