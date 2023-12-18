@@ -228,10 +228,10 @@ footer {
 #campus_map {
   display: none;
   color: grey;
-  font-family: monospace;
-  font-size: 13px;
-  letter-spacing: 4.175px;
-  line-height: 13px;
+  font-family: 'Cascadia Code';
+  font-size: 12px;
+  letter-spacing: 4.3px;
+  line-height: 11px;
 }
 .building, .wall, .me {
   color: black;
