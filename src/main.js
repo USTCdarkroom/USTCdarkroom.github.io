@@ -87,7 +87,7 @@ let event_cnt = 0;
 
 // 背包
 let velocity = 1;
-let backpack = initBackpack;
+let backpack = JSON.parse(JSON.stringify(initBackpack));
 
 let nowX = initX, nowY = initY;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是初始坐标
 let nowCampus;
@@ -148,6 +148,12 @@ function message(expr) {
     case 'buy rpg': log('制作了一个火箭筒。'); break;
     case 'buy cannonball': log('制作了一枚炮弹。'); break;
     case 'buy laser': log('制作了一副激光武器。'); break;
+
+    // Info in campus
+    case 'senseOfDirection <= 5': log('方向感快用完了。'); break;
+    case 'senseOfDirection <= 0': log('方向感用完了。'); break;
+    case 'death of senseOfDirection': 
+      log('眼前的道路诡异地扭曲直至消失，回过神来已经被送到了宿舍。'); break;
     default: log('${' + expr + '}'); break;
   }
 }
@@ -233,6 +239,23 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
       backpack[weapon] < weapons[weapons.length - 1]);
     bind(`#${weapon}_taken`, 2,
       backpack[weapon] !== undefined && backpack[weapon] > weapons[0]);
+  }
+}
+
+function updateBackpack() {  // 更新背包栏。
+  let changeText = (row, text) => {
+    $($(`#${row}_left td`)[1]).text(text);
+  };
+  changeText('sense_of_direction', backpack.senseOfDirection);
+  for (let item of ['bullet', 'cannonball', 'arrow', 'medicine']) {
+    changeText(item, backpack[item]);
+  }
+  for (let weapon of breakableWeapons) {
+    if (backpack[weapon] === undefined) {
+      changeText(weapon, '--');
+    } else {
+      changeText(weapon, backpack[weapon] * 100 / eval(`${weapon}Max` + '%'));
+    }
   }
 }
 
@@ -424,14 +447,16 @@ function adjustPrepareWeapon(weapon) {
 function setOff() {
   $('#campus #campus_prepare_wrapper').css('display', 'none');
   $('#campus #data_wrapper').css('display', 'none');
-  $('#campus #campus_map').css('display', 'block');
+  $('#campus #campus_map, #backpack_wrapper').css('display', 'block');
   $('#tab_dorm, #tab_thesis').css('color', 'grey');
   nowCampus = 'middle';
   discover();
   changeMap(nowCampus);
+  updateBackpack();
 }
 function home() {
-  $('#campus #campus_prepare_wrapper, #campus #data_wrapper').css('display', 'block');
+  $('#campus #campus_prepare_wrapper, #campus #data_wrapper')
+      .css('display', 'block');
   $('#campus #campus_map, #backpack_wrapper').css('display', 'none');
   $('#tab_dorm, #tab_thesis').css('color', 'black');
   backpack.senseOfDirection = 0;
@@ -716,6 +741,16 @@ function moveMe(e) {
     home(); return;
   }
   discover();
+  backpack.senseOfDirection--;
+  if (backpack.senseOfDirection === 5) { message('senseOfDirection <= 5'); }
+  if (backpack.senseOfDirection === 0) { message('senseOfDirection <= 0'); }
+  if (backpack.senseOfDirection === -1) {
+    message('death of senseOfDirection');
+    backpack = JSON.parse(JSON.stringify(initBackpack));
+    home();
+    return;
+  }
+  updateBackpack();
   changeMap(nowCampus);
 }
 function moveTab(e) {
@@ -748,5 +783,5 @@ function main() {
   }
 
   changeTab('campus');
-  setOff();
+  // setOff();
 }
