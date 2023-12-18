@@ -122,7 +122,7 @@ td.value {
 
 /* DOM 元素的掩盖，避免在 JS 未加载完毕时剧透剧情 */
 #data tr:not(.math_value), #phys_inc, #chem_inc,
-#campus_adjus tr:not(#sense_of_direction):not(#velocity) {
+#campus_adjust tr:not(#sense_of_direction):not(#velocity) {
   display: none;
 }
 
@@ -137,4 +137,11 @@ footer {
   display: block;
   float: right;
   margin-right: 30px;
+}
+
+#campus_map {
+  display: none;
+  color: grey;
+  font-family: monospace;
+  font-size: 13px;
 }
