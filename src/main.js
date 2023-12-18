@@ -279,9 +279,12 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
 }
 
 function prepareDataRows() {
-  $('.math_value').on('mouseover', () => { onMouseBox(`数学能力: +${math_speed}/10s`); });
-  $('.phys_value').on('mouseover', () => { onMouseBox(`物理能力: +${phys_speed}/10s`); });
-  $('.chem_value').on('mouseover', () => { onMouseBox(`化学能力: +${chem_speed}/10s`); });
+  $('.math_value').on('mouseover', 
+      () => { onMouseBox(`数学能力: +${math_speed}/10s`); });
+  $('.phys_value').on('mouseover', 
+      () => { onMouseBox(`物理能力: +${phys_speed}/10s`); });
+  $('.chem_value').on('mouseover',
+      () => { onMouseBox(`化学能力: +${chem_speed}/10s`); });
   for (let i of subjects) {
     $(`.${i}_value`).on('mouseleave', () => { offMouseBox(); });
   }
