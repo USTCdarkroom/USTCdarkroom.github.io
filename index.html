@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="assets/fontawesome/css/fontawesome.min.css"/>
   <link rel="stylesheet" href="assets/fontawesome/css/solid.min.css"/>
   <script src="assets/jquery.min.js"></script>
+  <script src="src/maps.js"></script>
   <script src="src/main.js"></script>
   <link rel="stylesheet" href="src/main.css"/>
 </head>
@@ -70,45 +71,45 @@
     <div id="data_wrapper">
       <div id="data">
         <table>
-          <tr id="math_value">
-            <td>数学能力</td> <td style="text-align: right;">0</td>
+          <tr class="math_value">
+            <td>数学能力</td> <td class="value">0</td>
           </tr>
-          <tr id="phys_value">
-            <td>物理能力</td> <td style="text-align: right;">0</td>
+          <tr class="phys_value">
+            <td>物理能力</td> <td class="value">0</td>
           </tr>
-          <tr id="chem_value">
-            <td>化学能力</td> <td style="text-align: right;">0</td>
+          <tr class="chem_value">
+            <td>化学能力</td> <td class="value">0</td>
           </tr>
-          <tr id="bow_count">
-            <td>弓</td> <td style="text-align: right;">0</td>
+          <tr class="bow_count">
+            <td>弓</td> <td class="value">0</td>
           </tr>
-          <tr id="arrow_count">
-            <td>箭</td> <td style="text-align: right;">0</td>
+          <tr class="arrow_count">
+            <td>箭</td> <td class="value">0</td>
           </tr>
-          <tr id="sword_count">
-            <td>剑</td> <td style="text-align: right;">0</td>
+          <tr class="sword_count">
+            <td>剑</td> <td class="value">0</td>
           </tr>
-          <tr id="gun_count">
-            <td>枪</td> <td style="text-align: right;">0</td>
+          <tr class="gun_count">
+            <td>枪</td> <td class="value">0</td>
           </tr>
-          <tr id="bullet_count">
-            <td>子弹</td> <td style="text-align: right;">0</td>
+          <tr class="bullet_count">
+            <td>子弹</td> <td class="value">0</td>
           </tr>
-          <tr id="rpg_count">
-            <td>火箭筒</td> <td style="text-align: right;">0</td>
+          <tr class="rpg_count">
+            <td>火箭筒</td> <td class="value">0</td>
           </tr>
-          <tr id="cannonball_count">
-            <td>炮弹</td> <td style="text-align: right;">0</td>
+          <tr class="cannonball_count">
+            <td>炮弹</td> <td class="value">0</td>
           </tr>
-          <tr id="laser_count">
-            <td>激光武器</td> <td style="text-align: right;">0</td>
+          <tr class="laser_count">
+            <td>激光武器</td> <td class="value">0</td>
           </tr>
-          <tr id="medicine_count">
-            <td>治疗药水</td> <td style="text-align: right;">0</td>
+          <tr class="medicine_count">
+            <td>治疗药水</td> <td class="value">0</td>
           </tr>
-          <tr id="avoid_hit"><td>避实就虚</td><td></td></tr>
-          <tr id="one_library"><td>学富五车</td><td></td></tr>
-          <tr id="two_libraries"><td>才高八斗</td><td></td></tr>
+          <tr class="avoid_hit"><td>避实就虚</td><td></td></tr>
+          <tr class="one_library"><td>学富五车</td><td></td></tr>
+          <tr class="two_libraries"><td>才高八斗</td><td></td></tr>
         </table>
       </div>
     </div>
@@ -119,9 +120,64 @@
       <div id="log_hidder"></div>
       <div class="log"></div>
     </div>
-    <div id="campus_map">
-
+    <div id="campus_prepare_wrapper">
+      <div id="campus_adjust_box">
+        <table id="campus_adjust">
+          <tr id="direction_value">
+            <td class="item">方向感</td> <td>0</td> <td><i class="fas fa-angle-up"></i>&nbsp;<i class="fas fa-angle-down"></i>&nbsp;<i class="fas fa-angles-up"></i>&nbsp;<i class="fas fa-angles-down"></i></td>
+          </tr>
+          <tr id="phys_inc">
+            <td class="item">速度</td> <td>0</td> <td><i class="fas fa-caret-up"></i>&nbsp;<i class="fas fa-caret-down"></i></td>
+          </tr>
+        </table>
+      </div>
     </div>
+    <div id="data_wrapper">
+      <div id="data">
+        <table>
+          <tr class="math_value">
+            <td>数学能力</td> <td class="value">0</td>
+          </tr>
+          <tr class="phys_value">
+            <td>物理能力</td> <td class="value">0</td>
+          </tr>
+          <tr class="chem_value">
+            <td>化学能力</td> <td class="value">0</td>
+          </tr>
+          <tr class="bow_count">
+            <td>弓</td> <td class="value">0</td>
+          </tr>
+          <tr class="arrow_count">
+            <td>箭</td> <td class="value">0</td>
+          </tr>
+          <tr class="sword_count">
+            <td>剑</td> <td class="value">0</td>
+          </tr>
+          <tr class="gun_count">
+            <td>枪</td> <td class="value">0</td>
+          </tr>
+          <tr class="bullet_count">
+            <td>子弹</td> <td class="value">0</td>
+          </tr>
+          <tr class="rpg_count">
+            <td>火箭筒</td> <td class="value">0</td>
+          </tr>
+          <tr class="cannonball_count">
+            <td>炮弹</td> <td class="value">0</td>
+          </tr>
+          <tr class="laser_count">
+            <td>激光武器</td> <td class="value">0</td>
+          </tr>
+          <tr class="medicine_count">
+            <td>治疗药水</td> <td class="value">0</td>
+          </tr>
+          <tr class="avoid_hit"><td>避实就虚</td><td></td></tr>
+          <tr class="one_library"><td>学富五车</td><td></td></tr>
+          <tr class="two_libraries"><td>才高八斗</td><td></td></tr>
+        </table>
+      </div>
+    </div>
+    <div id="campus_map"></div>
   </span>
   <span id="thesis" style="display: none;">
     <div id="log_wrapper">

@@ -33,7 +33,7 @@ header #stage {
   padding: 10px;
 }
 #log_wrapper { width: 150px; }
-#adjust_and_weapon { width: 220px; }
+#adjust_and_weapon, #campus_prepare_wrapper { width: 220px; }
 #data_wrapper { width: 200px; }
 
 #log_hidder {
@@ -46,20 +46,23 @@ header #stage {
   background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
 }
 
-#adjust {
+div#adjust, #campus_adjust_box {
   border-style: solid;
   padding: 5px;
 }
-table#adjust {
+table#adjust, #campus_adjust {
   border-style: none;
+  padding: 5px;
   width: 100%;
 }
-table#adjust td {
+table#adjust td, #campus_adjust td {
   text-align: right;
   padding-left: 3px;
   padding-right: 3px;
 }
-table#adjust td.subject { text-align: left; }
+table#adjust td.subject, #campus_adjust td.item { 
+  text-align: left; 
+}
 
 #weapon {
   display: block;
@@ -103,6 +106,9 @@ table#adjust td.subject { text-align: left; }
 #data > table {
   width: 100%;
 }
+td.value {
+  text-align: right;
+}
 
 #mouse_box {
   border-style: solid;
@@ -114,7 +120,7 @@ table#adjust td.subject { text-align: left; }
 }
 
 /* DOM 元素的掩盖，避免在 JS 未加载完毕时剧透剧情 */
-#data tr:not(#math_value), #phys_inc, #chem_inc {
+#data tr:not(.math_value), #phys_inc, #chem_inc {
   display: none;
 }
 

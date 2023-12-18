@@ -16,11 +16,7 @@ const producableWeapons = ['sword', 'gun', 'bullet', 'rpg', 'cannonball',
                            'laser'];
 const bowMax = 10, swordMax = 10, gunMax = 50, rpgMax = 50, laserMax = 100;
 
-const sortCmp = (a, b) => {
-  if (a > b) { return 1; }
-  if (a < b) { return -1; }
-  return 0;
-}
+const sortCmp = (a, b) => a - b;
 
 let nowTab = 'dorm';
 
@@ -72,7 +68,7 @@ function log(str) {
   setTimeout(() => { unlog(randomId); }, 1000 * 60 * 3);
 }
 function unlog(id) {
-  if (logTexts[logTexts.length - 1].id == id) {
+  if (logTexts[logTexts.length - 1].id === id) {
     logTexts.pop();
     updateLogDom();
   }
@@ -102,7 +98,7 @@ function message(expr) {
 }
 
 function changeTab(tab) {
-  if (nowTab == tab) { return; }
+  if (nowTab === tab) { return; }
   $(`#tab_${nowTab}`).css('text-decoration', 'none');
   $(`#tab_${tab}`).css('text-decoration', 'underline');
   $(`#${nowTab}`).css('display', 'none');
@@ -124,15 +120,15 @@ function offMouseBox() {
 
 function updateValue() {  // 更新能力值。因为很常用于是单独拿出来。
   for (let sub of subjects) {
-    $($(`#${sub}_value td`)[1]).text(eval(`${sub}_value`));
+    $(`.${sub}_value td.value`).text(eval(`${sub}_value`));
   }
 }
 
 function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变量后需调用。
   updateValue();
 
-  if (showPhys) { $('#phys_inc, #phys_value').css('display', 'table-row'); }
-  if (showChem) { $('#chem_inc, #chem_value').css('display', 'table-row'); }
+  if (showPhys) { $('#phys_inc, .phys_value').css('display', 'table-row'); }
+  if (showChem) { $('#chem_inc, .chem_value').css('display', 'table-row'); }
 
   // 成就
   let achieveIds = [];
@@ -140,17 +136,17 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
     achieveIds.push(achieve.id);
   }
   for (let achieveId of achieveIds) {
-    if (achieved.indexOf(achieveId) != -1) {
-      $(`#${achieveId}`).css('display', 'table-row');
+    if (achieved.indexOf(achieveId) !== -1) {
+      $(`.${achieveId}`).css('display', 'table-row');
     }
   }
 
   // 道具库
-  if (showPhys || showChem) { $('#produce_weapon').css('display', 'inherit'); }
-  if (showPhys && showChem) { $('#study_weapon').css('display', 'inherit'); }
+  if (showPhys || showChem) { $('.produce_weapon').css('display', 'inherit'); }
+  if (showPhys && showChem) { $('.study_weapon').css('display', 'inherit'); }
   var show = (weapon) => {
-    $('#' + weapon).css('display', 'inherit');
-    $(`#${weapon}_count`).css('display', 'table-row');
+    $('.' + weapon).css('display', 'inherit');
+    $(`.${weapon}_count`).css('display', 'table-row');
   };
   if (showBow) { show('bow'); show('arrow'); }
   if (showPhys) { show('sword'); }
@@ -168,7 +164,7 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
   for (let item of items) {
     let count = eval(`${item}s`);
     if (count.length !== undefined) { count = count.length; }
-    $($(`#${item}_count td`)[1]).text(count);
+    $(`.${item}_count td.value`).text(count);
   }
   
   // 增量调整栏
@@ -186,24 +182,24 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
 }
 
 function prepareDataRows() {
-  $('#math_value').on('mouseover', () => { onMouseBox('数学能力: +' + math_speed + '/10s'); });
-  $('#phys_value').on('mouseover', () => { onMouseBox('物理能力: +' + phys_speed + '/10s'); });
-  $('#chem_value').on('mouseover', () => { onMouseBox('化学能力: +' + chem_speed + '/10s'); });
+  $('.math_value').on('mouseover', () => { onMouseBox(`数学能力: +${math_speed}/10s`); });
+  $('.phys_value').on('mouseover', () => { onMouseBox(`物理能力: +${phys_speed}/10s`); });
+  $('.chem_value').on('mouseover', () => { onMouseBox(`化学能力: +${chem_speed}/10s`); });
   for (let i of subjects) {
-    $(`#${i}_value`).on('mouseleave', () => { offMouseBox(); });
+    $(`.${i}_value`).on('mouseleave', () => { offMouseBox(); });
   }
 
   for (let weapon of breakableWeapons) {
-    $(`#${weapon}_count`)
+    $(`.${weapon}_count`)
       .on('mouseover', () => {
         let str = '耐久度: ';
         let tmp = eval(`${weapon}s`);
-        if (tmp.length == 0) { return; }
+        if (tmp.length === 0) { return; }
         tmp.sort(sortCmp); 
         let count = 0, max = eval(`${weapon}Max`);
         for (let i = tmp.length - 1; i >= 0; --i) {
           count++;
-          if (i == 0 || tmp[i] != tmp[i - 1]) {
+          if (i === 0 || tmp[i] !== tmp[i - 1]) {
             str += `${tmp[i] * 100 / max}%x${count}, `;
             count = 0;
           }
@@ -214,7 +210,7 @@ function prepareDataRows() {
   }
   
   for (let ach of achieves) {
-    $('#' + ach.id)
+    $(`.${ach.id}`)
       .on('mouseover', () => { onMouseBox(ach.txt); })
       .on('mouseleave', () => { offMouseBox(); });
   }
@@ -328,7 +324,7 @@ function studyWeapon(weapon) {
 
 function prepareWeapon() {
   for (let weapon of producableWeapons) {
-    $('#' + weapon).on('mousedown', () => { buyWeapon(weapon); });
+    $(`#${weapon}`).on('mousedown', () => { buyWeapon(weapon); });
   }
 }
 
