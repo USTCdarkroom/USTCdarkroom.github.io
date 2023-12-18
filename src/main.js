@@ -2,7 +2,7 @@
 
 $(main);
 
-const tabIds = ['tab_dorm', 'tab_campus', 'tab_thesis'];
+const tabIds = ['dorm', 'campus', 'thesis'];
 const subjects = ['math', 'phys', 'chem'];
 const achieves = [
   {id: 'avoid_hit', txt: '找到别人打不到的地方。'},
@@ -10,8 +10,10 @@ const achieves = [
   {id: 'two_libraries', txt: '古往今来，无所不晓。'},
 ];
 const breakableWeapons = ['bow', 'sword', 'gun', 'rpg', 'laser'];
-const items = ['bow', 'sword', 'gun', 'rpg', 'laser', 'bullet', 'cannonball', 'arrow', 'medicine'];
-const producableWeapons = ['sword', 'gun', 'bullet', 'rpg', 'cannonball', 'laser'];
+const items = ['bow', 'sword', 'gun', 'rpg', 'laser', 'bullet', 'cannonball',
+               'arrow', 'medicine'];
+const producableWeapons = ['sword', 'gun', 'bullet', 'rpg', 'cannonball',
+                           'laser'];
 const bowMax = 10, swordMax = 10, gunMax = 50, rpgMax = 50, laserMax = 100;
 
 const sortCmp = (a, b) => {
@@ -20,7 +22,7 @@ const sortCmp = (a, b) => {
   return 0;
 }
 
-let nowTab = 'tab_dorm';
+let nowTab = 'dorm';
 
 // 能力值及增速
 let math_speed = 0, phys_speed = 0, chem_speed = 0, rest_speed = 20;
@@ -36,6 +38,8 @@ let showPhys = false, showChem = false;
 let showBow = false, showRpg = false, showLaser = false, showMedicine = false;
 let learntPowder = false, learntDynamite = false;
 
+let logTexts = [];  // { id: [string], text: [string] }
+
 function debugSaveFile() {
   math_value = phys_value = chem_value = 10000;
   bows = [1, 2, 3, 4];
@@ -49,10 +53,32 @@ function debugSaveFile() {
   learntDynamite = learntPowder = true;
 }
 
+function updateLogDom() {
+  let logStr = '';
+  for (let logText of logTexts) {
+    logStr += '\n' + logText.text;
+  }
+  $('.log').text(logStr.substring(1));
+  $('.log').html($('.log').html().replace(/\n/g, '<br/>'));
+}
 function log(str) {
-  console.log(str);
+  let randomId = Math.random().toString(36).substring(2);
+  logTexts.unshift({id: randomId, text: str});
+  updateLogDom();
+  while ($('.log').height() > window.innerHeight - 120) {
+    logTexts.pop();
+    updateLogDom();
+  }
+  setTimeout(() => { unlog(randomId); }, 1000 * 60 * 3);
+}
+function unlog(id) {
+  if (logTexts[logTexts.length - 1].id == id) {
+    logTexts.pop();
+    updateLogDom();
+  }
 }
 
+// 非 ASCII 字符不要出现在 message 方法及注释外
 function message(expr) {
   switch (expr) {
     // Error
@@ -65,21 +91,23 @@ function message(expr) {
     // Info
     case 'powder learnt': log('掌握了火药的制造。'); break;
     case 'dynamite learnt': log('掌握了炸药的制造。'); break;
+    case 'buy sword': log('制作了一把剑。'); break;
+    case 'buy gun': log('制作了一把枪。'); break;
+    case 'buy bullet': log('制作了一颗子弹。'); break;
+    case 'buy rpg': log('制作了一个火箭筒。'); break;
+    case 'buy cannonball': log('制作了一枚炮弹。'); break;
+    case 'buy laser': log('制作了一副激光武器。'); break;
     default: log('${' + expr + '}'); break;
   }
 }
 
-function clear() {
-
-}
-
 function changeTab(tab) {
-  for (let i of tabIds) {
-    $('#' + i).css('text-decoration', 'none');
-  }
-  console.log(tab);
+  if (nowTab == tab) { return; }
+  $(`#tab_${nowTab}`).css('text-decoration', 'none');
+  $(`#tab_${tab}`).css('text-decoration', 'underline');
+  $(`#${nowTab}`).css('display', 'none');
+  $(`#${tab}`).css('display', 'block');
   nowTab = tab;
-  $('#' + nowTab).css('text-decoration', 'underline');
 }
 
 function setUpMouseBox() {
@@ -192,45 +220,31 @@ function prepareDataRows() {
   }
 }
 
-function changeSubjectSpeed (subject, delta) {
-  switch (subject) {
-    case 'math': math_speed += delta; break;
-    case 'phys': phys_speed += delta; break;
-    case 'chem': chem_speed += delta; break;
-  }
-};
 function changeInc(subject, index) {  // 学科 id；按钮编号
   switch (index) {
     case 0:  // +1
-      if (rest_speed >= 1) {
-        rest_speed--; changeSubjectSpeed(subject, +1);
+      if (rest_speed >= 1) { 
+        rest_speed--; eval(`${subject}_speed++`);
       }
       break;
     case 1:  // -1
       if (eval(`${subject}_speed`) >= 1) {
-        rest_speed++; changeSubjectSpeed(subject, -1);
+        rest_speed++; eval(`${subject}_speed--`);
       }
       break;
     case 2:  // +10
       if (rest_speed >= 10) {
-        rest_speed -= 10; changeSubjectSpeed(subject, +10);
+        rest_speed -= 10; eval(`${subject}_speed += 10`);
       }
       break;
     case 3:  // -10
       if (eval(`${subject}_speed`) >= 10) {
-        rest_speed += 10; changeSubjectSpeed(subject, -10);
+        rest_speed += 10; eval(`${subject}_speed -= 10`);
       }
       break;
   }
   updateDom();
 }
-function changeSubjectValue(subject, delta) {
-  switch (subject) {
-    case 'math': math_value += delta; break;
-    case 'phys': phys_value += delta; break;
-    case 'chem': chem_value += delta; break;
-  }
-};
 function prepareInc() {
   for (let subject of subjects) {
     for (let i of [0, 1, 2, 3]) {
@@ -238,7 +252,7 @@ function prepareInc() {
         .on('mousedown', () => { changeInc(subject, i); });
     }
     setInterval(() => {
-        changeSubjectValue(subject, eval(`${subject}_speed`));
+        eval(`${subject}_value += ${subject}_speed`);
         updateValue();
       }, 10000);
   }
@@ -250,17 +264,20 @@ function buyWeapon(weapon) {
       if (phys_value < 50) { message('phys low'); break; }
       phys_value -= 50;
       swords.push(10);
+      message('buy sword');
       break;
     case 'gun':
       if (phys_value < 100) { message('phys low'); break; }
       phys_value -= 100;
       guns.push(50);
+      message('buy gun');
       break;
     case 'bullet':
       if (!learntPowder) { message('!learnt powder'); break; }
       if (chem_value < 2) { message('chem low'); break; }
       chem_value -= 2;
       bullets++;
+      message('buy bullet');
       break;
     case 'rpg':
       if (math_value < 100) { message('math low'); break; }
@@ -268,12 +285,14 @@ function buyWeapon(weapon) {
       math_value -= 100;
       phys_value -= 200;
       rpgs.push(50);
+      message('buy rpg');
       break;
     case 'cannonball':
       if (!learntDynamite) { message('!learnt dynamite'); break; }
       if (chem_value < 5) { message('chem low'); break; }
       chem_value -= 5;
       cannonballs++;
+      message('buy cannonball');
       break;
     case 'laser':
       if (math_value < 250) { message('math low'); break; }
@@ -281,6 +300,7 @@ function buyWeapon(weapon) {
       math_value -= 250;
       phys_value -= 500;
       lasers.push(100);
+      message('buy laser');
       break;
   }
   updateDom();
@@ -319,7 +339,7 @@ function main() {
   prepareDataRows();  // 使数据表的每一行开启鼠标小框
   prepareInc();
   prepareWeapon();
-  for (let i of tabIds) {
-    $('#' + i).on('click', () => { changeTab(i); });
+  for (let tabId of tabIds) {
+    $(`#tab_${tabId}`).on('click', () => { changeTab(tabId); });
   }
 }
