@@ -111,3 +111,10 @@ const eastCampus = [
 ];
 
 let eastVisited = new Array(38).fill().map(x => new Array(64).fill(false));
+
+let buildings = [
+  {
+    campus: 'middle', x: 5, y: 6, name: '应用化学楼',
+    entered: false, finished: false, type: 'chem'
+  }
+]
