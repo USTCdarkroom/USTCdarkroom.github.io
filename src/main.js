@@ -36,6 +36,15 @@ let learntPowder = false, learntDynamite = false;
 
 let logTexts = [];  // { id: [string], text: [string] }
 
+// 背包
+let velocity = 1;
+let backpack = {
+  senseOfDirection: 0,
+  bullet: 0, cannonball: 0, arrow: 0, medicine: 0,
+  bow: undefined, sword: undefined, gun: undefined, rpg: undefined,
+  laser: undefined
+};
+
 function debugSaveFile() {
   math_value = phys_value = chem_value = 10000;
   bows = [1, 2, 3, 4];
@@ -118,9 +127,66 @@ function offMouseBox() {
   $('#mouse_box').css('display', 'none');
 }
 
-function updateValue() {  // 更新能力值。因为很常用于是单独拿出来。
+function updateValue() {  // 更新能力值、物品数。因为很常用于是单独拿出来。
   for (let sub of subjects) {
     $(`.${sub}_value td.value`).text(eval(`${sub}_value`));
+  }
+  for (let item of items) {
+    let count = eval(`${item}s`);
+    if (count.length !== undefined) { count = count.length; }
+    $(`.${item}_count td.value`).text(count);
+  }
+}
+
+function updatePrepare() {  // 更新出发前准备栏。因为很常用所以单独拿出来。
+  let bind = (row, idx, expr) => {
+    $($(`${row} i`)[idx]).css('color', expr ? 'black' : 'grey');
+  };
+
+  $($('#velocity td')[1]).text(velocity);
+  bind('#velocity', 0, math_value >= 50 && velocity < 9999);
+  bind('#velocity', 1, velocity >= 2);
+  if (backpack.senseOfDirection >= 1) {
+    $('#set_off').addClass('active_box').removeClass('inactive_box');
+  } else {
+    $('#set_off').addClass('inactive_box').removeClass('active_box');
+  }
+
+  let link = (id, cost, gain) => {
+    $($(`#${id} td`)[1]).text(backpack[gain]);
+    bind(`#${id}`, 0, eval(cost) >= 1 && backpack[gain] < 9999);
+    bind(`#${id}`, 1, backpack[gain] >= 1);
+    bind(`#${id}`, 2, eval(cost) >= 10 && backpack[gain] < 9990);
+    bind(`#${id}`, 3, backpack[gain] >= 10);
+  };
+  link('sense_of_direction', 'math_value', 'senseOfDirection');
+  for (let item of ['bullet', 'cannonball', 'arrow', 'medicine']) {
+    link(`${item}_taken`, `${item}s`, item);
+  }
+  
+  let check = (weapon) => {
+    $($(`#${weapon}_taken i`)[0]).removeClass('fa-square')
+                                 .addClass('fa-square-check');
+  };
+  let uncheck = (weapon) => {
+    $($(`#${weapon}_taken i`)[0]).removeClass('fa-square-check')
+                                 .addClass('fa-square');
+  };
+  for (let weapon of breakableWeapons) {
+    let durability = '??';
+    if (backpack[weapon] !== undefined) {
+      durability = backpack[weapon] * 100 / eval(`${weapon}Max`) + '%';
+      check(weapon);
+    } else {
+      durability = '--';
+      uncheck(weapon);
+    }
+    $($(`#${weapon}_taken td`)[1]).text(durability);
+    let weapons = eval(`${weapon}s.sort(sortCmp)`);
+    bind(`#${weapon}_taken`, 1, backpack[weapon] !== undefined &&
+        backpack[weapon] < weapons[weapons.length - 1]);
+    bind(`#${weapon}_taken`, 2, 
+        backpack[weapon] !== undefined && backpack[weapon] > weapons[0]);
   }
 }
 
@@ -147,6 +213,7 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
   var show = (weapon) => {
     $('.' + weapon).css('display', 'inherit');
     $(`.${weapon}_count`).css('display', 'table-row');
+    $(`#${weapon}_taken`).css('display', 'table-row');
   };
   if (showBow) { show('bow'); show('arrow'); }
   if (showPhys) { show('sword'); }
@@ -160,25 +227,22 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
   if (learntDynamite) {
     $('#dynamite').addClass('inactive_box').removeClass('active_box');
   }
-
-  for (let item of items) {
-    let count = eval(`${item}s`);
-    if (count.length !== undefined) { count = count.length; }
-    $(`.${item}_count td.value`).text(count);
-  }
   
   // 增量调整栏
   $($('#rest td')[1]).text(rest_speed);
 
+  let bind = (row, idx, expr) => {
+    $($(`${row} i`)[idx]).css('color', expr ? 'black' : 'grey'); };
   for (let sub of subjects) {
     $($(`#${sub}_inc td`)[1]).text(eval(`${sub}_speed`));
-    let bind = (idx, expr) => {
-      $($(`#${sub}_inc i`)[idx]).css('color', expr ? 'black' : 'grey'); };
-    bind(0, rest_speed >= 1);
-    bind(1, eval(`${sub}_speed`) >= 1);
-    bind(2, rest_speed >= 10);
-    bind(3, eval(`${sub}_speed`) >= 10);
+    bind(`#${sub}_inc`, 0, rest_speed >= 1);
+    bind(`#${sub}_inc`, 1, eval(`${sub}_speed`) >= 1);
+    bind(`#${sub}_inc`, 2, rest_speed >= 10);
+    bind(`#${sub}_inc`, 3, eval(`${sub}_speed`) >= 10);
   }
+
+  // 出发准备栏
+  updatePrepare();
 }
 
 function prepareDataRows() {
@@ -251,6 +315,85 @@ function prepareInc() {
         eval(`${subject}_value += ${subject}_speed`);
         updateValue();
       }, 10000);
+  }
+}
+
+function adjustPrepareItem(id, cost, gain) {  // 标签 id，按钮编号，消耗，获得
+  for (let idx of [0, 1, 2, 3]) {
+    let delta = [1, -1, 10, -10][idx];
+    $($(`#${id} i`)[idx]).on('mousedown', () => {
+      if (eval(cost) >= delta && backpack[gain] + delta < 10000 &&
+          backpack[gain] >= -delta) {
+        eval(`${cost} -= ${delta}; backpack.${gain} += ${delta}`);
+        updatePrepare();
+        updateValue();
+      }
+    });
+  }
+}
+function adjustPrepareWeapon(weapon) {
+  $($(`#${weapon}_taken i`)[0]).on('mousedown', () => {
+    if (backpack[weapon] === undefined) {
+      backpack[weapon] = eval(`${weapon}s.pop()`);
+    } else {
+      eval(`${weapon}s.push(${backpack[weapon]})`);
+      backpack[weapon] = undefined;
+    }
+    updatePrepare();
+    updateValue();
+  });
+  $($(`#${weapon}_taken i`)[1]).on('mousedown', () => {
+    if (backpack[weapon] === undefined) { return; }
+    let weapons = [...new Set(eval(`${weapon}s`))];
+    weapons.push(backpack[weapon]);
+    weapons.sort(sortCmp);
+    weapons = [...new Set(weapons)];
+    console.log(weapons);
+    if (backpack[weapon] === weapons[weapons.length - 1]) { return; }
+    eval(`${weapon}s.push(${backpack[weapon]})`);  // 将原来的 push 到最后
+    backpack[weapon] = weapons[weapons.indexOf(backpack[weapon]) + 1];
+    // 将新的从 weapons 删去
+    eval(`${weapon}s.splice(${weapon}s.indexOf(${backpack[weapon]}), 1)`);
+    eval(`${weapon}s.sort(sortCmp)`);
+    updatePrepare();
+    updateValue();
+  });
+  $($(`#${weapon}_taken i`)[2]).on('mousedown', () => {
+    if (backpack[weapon] === undefined) { return; }
+    let weapons = [...new Set(eval(`${weapon}s`))];
+    weapons.push(backpack[weapon]);
+    weapons.sort(sortCmp);
+    weapons = [...new Set(weapons)];
+    console.log(weapons);
+    if (backpack[weapon] === weapons[0]) { return; }
+    eval(`${weapon}s.push(${backpack[weapon]})`);  // 将原来的 push 到最后
+    backpack[weapon] = weapons[weapons.indexOf(backpack[weapon]) - 1];
+    // 将新的从 weapons 删去
+    eval(`${weapon}s.splice(${weapon}s.indexOf(${backpack[weapon]}), 1)`);
+    eval(`${weapon}s.sort(sortCmp)`);
+    updatePrepare();
+    updateValue();
+  });
+}
+function preparePrepare() {
+  adjustPrepareItem('sense_of_direction', 'math_value', 'senseOfDirection');
+  for (let item of ['bullet', 'cannonball', 'arrow', 'medicine']) {
+    adjustPrepareItem(`${item}_taken`, `${item}s`, item);
+  }
+  $($('#velocity i')[0]).on('mousedown', () => {
+    if (math_value >= 50 && velocity < 9999) {
+      math_value -= 50; velocity++;
+    }
+    updateDom();
+  });
+  $($('#velocity i')[1]).on('mousedown', () => {
+    if (velocity >= 2) {
+      velocity--; math_value += 50;
+    }
+    updateDom();
+  });
+  for (let weapon of breakableWeapons) {
+    adjustPrepareWeapon(weapon);
   }
 }
 
@@ -335,7 +478,9 @@ function main() {
   prepareDataRows();  // 使数据表的每一行开启鼠标小框
   prepareInc();
   prepareWeapon();
+  preparePrepare();  // 准备“出发前的准备”
   for (let tabId of tabIds) {
     $(`#tab_${tabId}`).on('click', () => { changeTab(tabId); });
   }
+  changeTab('campus');
 }

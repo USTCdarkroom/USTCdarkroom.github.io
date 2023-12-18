@@ -6,6 +6,7 @@
   <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.5.1/css/font-awesome.css"> -->
   <link rel="stylesheet" href="assets/fontawesome/css/fontawesome.min.css"/>
   <link rel="stylesheet" href="assets/fontawesome/css/solid.min.css"/>
+  <link rel="stylesheet" href="assets/fontawesome/css/regular.min.css"/>
   <script src="assets/jquery.min.js"></script>
   <script src="src/maps.js"></script>
   <script src="src/main.js"></script>
@@ -123,14 +124,42 @@
     <div id="campus_prepare_wrapper">
       <div id="campus_adjust_box">
         <table id="campus_adjust">
-          <tr id="direction_value">
+          <tr id="sense_of_direction">
             <td class="item">方向感</td> <td>0</td> <td><i class="fas fa-angle-up"></i>&nbsp;<i class="fas fa-angle-down"></i>&nbsp;<i class="fas fa-angles-up"></i>&nbsp;<i class="fas fa-angles-down"></i></td>
           </tr>
-          <tr id="phys_inc">
-            <td class="item">速度</td> <td>0</td> <td><i class="fas fa-caret-up"></i>&nbsp;<i class="fas fa-caret-down"></i></td>
+          <tr id="velocity">
+            <td class="item">速度</td> <td>1</td> <td><i class="fas fa-arrow-up-long"></i>&nbsp;<i class="fas fa-arrow-down-long"></i></td>
+          </tr>
+          <tr id="bow_taken">
+            <td class="item">弓</td> <td>--</td> <td><i class="far fa-square"></i>&nbsp;<i class="fas fa-caret-up"></i>&nbsp;&nbsp;<i class="fas fa-caret-down"></i></td>
+          </tr>
+          <tr id="arrow_taken">
+            <td class="item">箭</td> <td>0</td> <td><i class="fas fa-angle-up"></i>&nbsp;<i class="fas fa-angle-down"></i>&nbsp;<i class="fas fa-angles-up"></i>&nbsp;<i class="fas fa-angles-down"></i></td>
+          </tr>
+          <tr id="sword_taken">
+            <td class="item">剑</td> <td>--</td> <td><i class="far fa-square"></i>&nbsp;<i class="fas fa-caret-up"></i>&nbsp;&nbsp;<i class="fas fa-caret-down"></i></td>
+          </tr>
+          <tr id="gun_taken">
+            <td class="item">枪</td> <td>--</td> <td><i class="far fa-square"></i>&nbsp;<i class="fas fa-caret-up"></i>&nbsp;&nbsp;<i class="fas fa-caret-down"></i></td>
+          </tr>
+          <tr id="bullet_taken">
+            <td class="item">子弹</td> <td>0</td> <td><i class="fas fa-angle-up"></i>&nbsp;<i class="fas fa-angle-down"></i>&nbsp;<i class="fas fa-angles-up"></i>&nbsp;<i class="fas fa-angles-down"></i></td>
+          </tr>
+          <tr id="rpg_taken">
+            <td class="item">火箭筒</td> <td>--</td> <td><i class="far fa-square"></i>&nbsp;<i class="fas fa-caret-up"></i>&nbsp;&nbsp;<i class="fas fa-caret-down"></i></td>
+          </tr>
+          <tr id="cannonball_taken">
+            <td class="item">炮弹</td> <td>0</td> <td><i class="fas fa-angle-up"></i>&nbsp;<i class="fas fa-angle-down"></i>&nbsp;<i class="fas fa-angles-up"></i>&nbsp;<i class="fas fa-angles-down"></i></td>
+          </tr>
+          <tr id="laser_taken">
+            <td class="item">激光武器</td> <td>--</td> <td><i class="far fa-square"></i>&nbsp;<i class="fas fa-caret-up"></i>&nbsp;&nbsp;<i class="fas fa-caret-down"></i></td>
+          </tr>
+          <tr id="medicine_taken">
+            <td class="item">治疗药水</td> <td>0</td> <td><i class="fas fa-angle-up"></i>&nbsp;<i class="fas fa-angle-down"></i>&nbsp;<i class="fas fa-angles-up"></i>&nbsp;<i class="fas fa-angles-down"></i></td>
           </tr>
         </table>
       </div>
+      <div id="set_off" class="inactive_box">出发</div>
     </div>
     <div id="data_wrapper">
       <div id="data">
@@ -187,7 +216,7 @@
   </span>
 
   <footer>
-    <div id="footer_content">v0.2</div>
+    <div id="footer_content">v0.5</div>
   </footer>
 </body>
 </html>

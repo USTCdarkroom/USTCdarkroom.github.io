@@ -43,7 +43,8 @@ header #stage {
   min-height: calc(100% - 80px);
   width: 170px;
   z-index: 1;
-  background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+  background: linear-gradient(rgba(255, 255, 255, 0), 
+                             rgba(255, 255, 255, 1));
 }
 
 div#adjust, #campus_adjust_box {
@@ -120,7 +121,8 @@ td.value {
 }
 
 /* DOM 元素的掩盖，避免在 JS 未加载完毕时剧透剧情 */
-#data tr:not(.math_value), #phys_inc, #chem_inc {
+#data tr:not(.math_value), #phys_inc, #chem_inc,
+#campus_adjus tr:not(#sense_of_direction):not(#velocity) {
   display: none;
 }
 
