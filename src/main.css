@@ -159,7 +159,7 @@ td.value {
   display: none;
 }
 
-.optionbox {
+.option_box {
   border-style: solid;
   padding: 5px;
   width: 60px;
@@ -170,16 +170,16 @@ td.value {
   float: right;
 }
 
-.optionbox:hover {
+.option_box:hover {
   text-decoration: underline;
 }
 
-#eventtext {
+#event_text {
   margin-top: 20px;
   margin-bottom: 20px;
 }
 
-#eventbox {
+#event_box {
   display: none;
   position: fixed;
   border-style: solid;
@@ -192,7 +192,7 @@ td.value {
   border-radius: 5px;
 }
 
-#darkfilter {
+#dark_filter {
   position: fixed;
   left: 0px;
   top: 0px;
@@ -203,7 +203,7 @@ td.value {
   display: none;
 }
 
-#achievementbox {
+#achievement_box {
   position: fixed;
   right: 0%;
   top: 5%;
@@ -228,13 +228,13 @@ td.value {
   }
 }
 
-#achievementtext {
+#achievement_text {
   font-size: 20px;
   margin-top: 5px;
   margin-left: 10px;
 }
 
-#reachachievement {
+#reach_achievement {
   margin-top: 7px;
   margin-left: 10px;
 }

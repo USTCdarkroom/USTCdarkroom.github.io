@@ -419,6 +419,7 @@ function setOff() {
   $('#campus #campus_map, #backpack_wrapper').css('display', 'block');
   $('#tab_dorm, #tab_thesis').css('color', 'grey');
   nowCampus = 'middle';
+  nowX = initX; nowY = initY;
   discover();
   changeMap(nowCampus);
   updateBackpack();
@@ -584,25 +585,25 @@ function prepareEvent() {
       let cur = currnet_event;
 
       showEvent = true;
-      $(`#darkfilter`).css("display", "block");
-      $(`#eventbox`).css("display", "block");
+      $(`#dark_filter`).css("display", "block");
+      $(`#event_box`).css("display", "block");
 
       let eventid = Math.floor(Math.random() * events.length);
-      $(`#eventtext`).text(events[eventid].event);
+      $(`#event_text`).text(events[eventid].event);
 
       for (let i = 0; i < events[eventid].opt.length; i++) {
-        $(`#eventopt${i}`).css("display", "block");
-        $(`#eventopt${i}`).text(events[eventid].opt[i].txt);
+        $(`#event_opt${i}`).css("display", "block");
+        $(`#event_opt${i}`).text(events[eventid].opt[i].txt);
       }
       if (events[eventid].opt.length == 1) {
-        $(`#eventopt1`).css("display", "none");
+        $(`#event_opt1`).css("display", "none");
       }
 
       for (let i = 0; i < events[eventid].opt.length; i++) {
-        $(`#eventopt${i}`).on('mousedown', () => {
+        $(`#event_opt${i}`).on('mousedown', () => {
           if (cur != currnet_event) return;
-          $(`#darkfilter`).css("display", "none");
-          $(`#eventbox`).css("display", "none");
+          $(`#dark_filter`).css("display", "none");
+          $(`#event_box`).css("display", "none");
           showEvent = false;
           events[eventid].opt[i].res();
           updateDom();
@@ -626,16 +627,16 @@ function makeAchievement(achieveId) {
   if (achieveIndex == -1) return;
   current_achieve = achieveIndex;
 
-  $(`#achievementtext`).text(achieves[achieveIndex].name);
-  $(`#achievementtext`).css("display", "block");
-  $(`#reachachievement`).css("display", "block");
-  $(`#achievementbox`).css("display", "block");
+  $(`#achievement_text`).text(achieves[achieveIndex].name);
+  $(`#achievement_text`).css("display", "block");
+  $(`#reach_achievement`).css("display", "block");
+  $(`#achievement_box`).css("display", "block");
 
   setTimeout(() => {
     if (current_achieve == achieveIndex) {
-      $(`#achievementtext`).css("display", "none");
-      $(`#reachachievement`).css("display", "none");
-      $(`#achievementbox`).css("display", "none");
+      $(`#achievement_text`).css("display", "none");
+      $(`#reach_achievement`).css("display", "none");
+      $(`#achievement_box`).css("display", "none");
     }
   }, remain_time);
   achieved.push(achieveId);
