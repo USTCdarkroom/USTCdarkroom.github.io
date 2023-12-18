@@ -26,7 +26,7 @@ const middleCampus = [
   '################################################################'
 ];
 
-let middleVisited = new Array(22).fill(new Array(64).fill(0));
+let middleVisited = new Array(22).fill(new Array(64).fill(true));
 
 // 上 14 下 16, 64x34
 const westCampus = [
@@ -66,7 +66,7 @@ const westCampus = [
   '################################################################',
 ];
 
-let westVisited = new Array(34).fill(new Array(64).fill(0));
+let westVisited = new Array(34).fill(new Array(64).fill(true));
 
 // 上 7 下 27, 64x38
 const eastCampus = [
@@ -110,4 +110,4 @@ const eastCampus = [
   '################################################################',
 ];
 
-let eastVisited = new Array(38).fill(new Array(64).fill(0));
+let eastVisited = new Array(38).fill(new Array(64).fill(true));

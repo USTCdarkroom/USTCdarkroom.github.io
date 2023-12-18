@@ -169,3 +169,6 @@ footer {
   font-family: monospace;
   font-size: 13px;
 }
+.building, .wall, .me {
+  color: black;
+}

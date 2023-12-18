@@ -19,12 +19,18 @@ const items = ['bow', 'sword', 'gun', 'rpg', 'laser', 'bullet', 'cannonball',
 const producableWeapons = ['sword', 'gun', 'bullet', 'rpg', 'cannonball',
                            'laser'];
 const bowMax = 10, swordMax = 10, gunMax = 50, rpgMax = 50, laserMax = 100;
+const buildingInfo = {
+  L: '图书馆', T: '教学楼', G: '体育馆', R: '饭堂', 8: '8348', C: '化学实验楼',
+  P: '物理实验楼', H: '大礼堂', O: '宿舍', A: '艺术教育中心'
+};
+const westHeight = 14, middleHeight = 11, eastHeight = 7;  // 主干道与上边界距离
+const initX = 6, initY = 46;
 
 const sortCmp = (a, b) => a - b;
 
 let nowTab = 'dorm';
 
-// 能力值及增速
+// 能力值及增速 
 let math_speed = 0, phys_speed = 0, chem_speed = 0, rest_speed = 20;
 let math_value = 0, phys_value = 0, chem_value = 0;
 
@@ -39,6 +45,7 @@ let showBow = false, showRpg = false, showLaser = false, showMedicine = false;
 let learntPowder = false, learntDynamite = false;
 
 let logTexts = [];  // { id: [string], text: [string] }
+let lastMoveTimeStamp = 0, changingCampus = false;
 
 // 事件正在发生
 let showEvent = false;
@@ -52,8 +59,8 @@ let backpack = {
   laser: undefined
 };
 
-let nowX = 6, nowY = 46;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是初始坐标
-let nowCampus = 'middle';
+let nowX = initX, nowY = initY;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是初始坐标
+let nowCampus;
 
 function debugSaveFile() {
   math_value = phys_value = chem_value = 10000;
@@ -154,7 +161,7 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
   };
 
   $($('#velocity td')[1]).text(velocity);
-  bind('#velocity', 0, math_value >= 50 && velocity < 9999);
+  bind('#velocity', 0, math_value >= 50 && velocity < 399);
   bind('#velocity', 1, velocity >= 2);
   if (backpack.senseOfDirection >= 1) {
     $('#set_off').addClass('active_box').removeClass('inactive_box');
@@ -164,9 +171,9 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
 
   let link = (id, cost, gain) => {
     $($(`#${id} td`)[1]).text(backpack[gain]);
-    bind(`#${id}`, 0, eval(cost) >= 1 && backpack[gain] < 9999);
+    bind(`#${id}`, 0, eval(cost) >= 1 && backpack[gain] < 399);
     bind(`#${id}`, 1, backpack[gain] >= 1);
-    bind(`#${id}`, 2, eval(cost) >= 10 && backpack[gain] < 9990);
+    bind(`#${id}`, 2, eval(cost) >= 10 && backpack[gain] < 390);
     bind(`#${id}`, 3, backpack[gain] >= 10);
   };
   link('sense_of_direction', 'math_value', 'senseOfDirection');
@@ -385,13 +392,22 @@ function adjustPrepareWeapon(weapon) {
     updateValue();
   });
 }
+
+function setOff() {
+  $('#campus #campus_prepare_wrapper').css('display', 'none');
+  $('#campus #data_wrapper').css('display', 'none');
+  $('#campus #campus_map').css('display', 'block');
+  $('#tab_dorm, #tab_thesis').css('color', 'grey');
+  nowCampus = 'middle';
+  changeMap(nowCampus);
+}
 function preparePrepare() {
   adjustPrepareItem('sense_of_direction', 'math_value', 'senseOfDirection');
   for (let item of ['bullet', 'cannonball', 'arrow', 'medicine']) {
     adjustPrepareItem(`${item}_taken`, `${item}s`, item);
   }
   $($('#velocity i')[0]).on('mousedown', () => {
-    if (math_value >= 50 && velocity < 9999) {
+    if (math_value >= 50 && velocity < 399) {
       math_value -= 50; velocity++;
     }
     updateDom();
@@ -406,34 +422,40 @@ function preparePrepare() {
     adjustPrepareWeapon(weapon);
   }
   $('#set_off').on('mousedown', () => {
-    if (backpack.senseOfDirection > 0) {
-      $('#campus #campus_prepare_wrapper').css('display', 'none');
-      $('#campus #data_wrapper').css('display', 'none');
-      $('#campus #campus_map').css('display', 'block');
-      changeMap('east');
-    }
+    if (backpack.senseOfDirection > 0) { setOff(); }
   });
 }
 
 function changeMap(name) {
   let mapStr = '';
-  for (let line of eval(`${name}Campus`)) {
+  let mapFile = eval(`${name}Campus`);
+  let mapVst = eval(`${name}Visited`);
+  nowCampus = name;
+  offMouseBox();
+  for (let i = 0; i < mapFile.length; i++) {
     mapStr = mapStr + '\n';
-    for (let ch of line) {
+    for (let j = 0; j < mapFile[i].length; j++) {
+      if (nowX == i && nowY == j) {
+        mapStr += 'Me'; continue;
+      }
+      if (!mapVst[i][j]) {
+        mapStr += 'Space'; continue;
+      }
       let str = '';
-      switch (ch) {
+      switch (mapFile[i][j]) {
         case '.': str = 'Dot'; break;
         case '#': str = 'Sharp'; break;
-        default: str = 'Building' + ch;
+        default: str = 'Building' + mapFile[i][j];
       }
       mapStr += str;
     }
   }
   $('#campus_map').text(mapStr.substring(1));
-  $('#campus_map')  // TODO: 减少这里 span 的数量，最后将不必要的删去
+  $('#campus_map')  // TODO: 减少这里 span 的数量，最后将不必要的删去（譬如 '#'）
     .html($('#campus_map').html().replace(/\n/g, '<br/>'))
-    .html($('#campus_map').html().replace(/Dot/g, 
-                                          '.'))
+    .html($('#campus_map').html().replace(/Dot/g, '.'))
+    .html($('#campus_map').html().replace(/Space/g, '&nbsp;'))
+    .html($('#campus_map').html().replace(/Me/g, '<span class="me">@</span>'))  
     .html($('#campus_map').html().replace(/Sharp/g,
                                           '<span class="wall">#</span>'));  
   for (let ch of 'LTGR8CPHOA') {
@@ -441,6 +463,11 @@ function changeMap(name) {
           /Building${ch}/g, 
           '<span class="building building_${ch}">${ch}</span>'))`);
   }
+  for (let ch of 'LTGR8CPHOA') {
+    $(`.building_${ch}`).on('mouseover', () => onMouseBox(buildingInfo[ch]))
+                        .on('mouseleave', () => offMouseBox());
+  }
+  $('.me').on('mouseleave', () => offMouseBox());  // 必要的
 }
 
 function buyWeapon(weapon) {
@@ -536,6 +563,87 @@ function prepareEvent() {
   setInterval(() => checkEvent(), 1000);
 }
 
+function moveMe(e) {
+  if (nowCampus === undefined) { return; }
+  let updateMap = () => {
+    if (nowCampus === 'campus' && nowX == initX && nowY == initY) {
+      home();
+    }
+    changeMap(nowCampus);
+  };
+  let moveToCampus = (id, timeStamp, dx) => {
+    setTimeout(() => {
+      if (lastMoveTimeStamp === timeStamp) {
+        nowX -= dx;
+        nowY = 63 - nowY;
+        changingCampus = false;
+        changeMap(id); 
+      }
+    }, 1000);
+  };
+  let minInterval = 0.5 / velocity;
+  switch (e.originalEvent.key) {
+    case 'ArrowLeft':
+      if (nowY == 0) {
+        if (changingCampus) { break; }
+        if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+        lastMoveTimeStamp = e.timeStamp;
+        changingCampus = true;
+        if (nowCampus === 'middle') { 
+          moveToCampus('west', lastMoveTimeStamp, middleHeight - westHeight);
+        } else {
+          moveToCampus('middle', lastMoveTimeStamp, eastHeight - middleHeight);
+        }
+        break;
+      }
+      if (eval(`${nowCampus}Campus`)[nowX][nowY - 1] === '#') { break; }
+      if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+      lastMoveTimeStamp = e.timeStamp;
+      nowY--; updateMap();
+      break;
+    case 'ArrowRight':
+      if (nowY == 63) {
+        if (changingCampus) { break; }
+        if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+        lastMoveTimeStamp = e.timeStamp;
+        changingCampus = true;
+        if (nowCampus === 'middle') { 
+          moveToCampus('east', lastMoveTimeStamp, middleHeight - eastHeight);
+        } else {
+          moveToCampus('middle', lastMoveTimeStamp, westHeight - middleHeight);
+        }
+        break;
+      }
+      if (eval(`${nowCampus}Campus`)[nowX][nowY + 1] === '#') { break; }
+      if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+      lastMoveTimeStamp = e.timeStamp;
+      nowY++; updateMap();
+      break;
+    case 'ArrowUp':
+      if (eval(`${nowCampus}Campus`)[nowX - 1][nowY] === '#') { break; }
+      if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+      lastMoveTimeStamp = e.timeStamp;
+      nowX--; updateMap();
+      break;
+    case 'ArrowDown':
+      if (eval(`${nowCampus}Campus`)[nowX + 1][nowY] === '#') { break; }
+      if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+      lastMoveTimeStamp = e.timeStamp;
+      nowX++; updateMap();
+      break;
+  }
+}
+function moveTab(e) {
+  if (nowCampus !== undefined) { return; }
+  if (e.originalEvent.key === 'ArrowLeft') {
+    if (nowTab === 'campus') { changeTab('dorm'); }
+    if (nowTab === 'thesis') { changeTab('campus'); }
+  } else if (e.originalEvent.key === 'ArrowRight') {
+    if (nowTab === 'campus') { changeTab('thesis'); }
+    if (nowTab === 'dorm') { changeTab('campus'); }
+  }
+}
+
 function main() {
   debugSaveFile();
   updateDom();
@@ -544,13 +652,14 @@ function main() {
   prepareInc();
   prepareWeapon();
   preparePrepare();  // 准备“出发前的准备”
+  $(document).on('keydown', (e) => moveMe(e));
+  $(document).on('keyup', (e) => moveTab(e));
   for (let tabId of tabIds) {
-    $(`#tab_${tabId}`).on('click', () => { changeTab(tabId); });
+    $(`#tab_${tabId}`).on('click', () => { 
+      if (nowCampus === undefined) { changeTab(tabId); }
+    });
   }
 
   changeTab('campus');
-  $('#campus #campus_prepare_wrapper').css('display', 'none');
-  $('#campus #data_wrapper').css('display', 'none');
-  $('#campus #campus_map').css('display', 'block');
-  changeMap('east');
+  setOff();
 }
