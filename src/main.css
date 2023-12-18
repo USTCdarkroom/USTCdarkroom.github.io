@@ -203,6 +203,42 @@ td.value {
   display: none;
 }
 
+#achievementbox {
+  position: fixed;
+  right: 0%;
+  top: 5%;
+  border-top: solid;
+  border-bottom: solid;
+  border-left: solid;
+  z-index: 100;
+  display: none;
+  animation-name: popout;
+  animation-duration: 3s;
+}
+
+@keyframes popout {
+  from {
+    width: 100px;
+    height: 80px;
+  }
+
+  to {
+    width: 250px;
+    height: 80px;
+  }
+}
+
+#achievementtext {
+  font-size: 20px;
+  margin-top: 5px;
+  margin-left: 10px;
+}
+
+#reachachievement {
+  margin-top: 7px;
+  margin-left: 10px;
+}
+
 /* DOM 元素的掩盖，避免在 JS 未加载完毕时剧透剧情 */
 #data tr:not(.math_value),
 #phys_inc,
@@ -234,6 +270,9 @@ footer {
   letter-spacing: 4px;
   line-height: 11px;
 }
-.building, .wall, .me {
+
+.building,
+.wall,
+.me {
   color: black;
 }
