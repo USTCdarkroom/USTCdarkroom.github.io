@@ -11,14 +11,12 @@ const achieves = [
 ];
 const events = [
   {
-    evt: "数理基础得到进一步巩固", opt:
-      [{
-        txt: "确认", res: () => { math_value += 100; phys_value += 100; }
-      }]
-  },
-  {
-    evt: "美丽邂逅开始了报名", opt:
-      [{
+    event: "数理基础得到进一步巩固", 
+    opt: [{ txt: "确认", res: () => { math_value += 100; phys_value += 100; } }]
+  }, {
+    event: "美丽邂逅开始了报名",
+    opt: [
+      {
         txt: "参加", res: () => {
           let x = 2;
           while (rest_speed > 0 && x > 0) { rest_speed--; x--; }
@@ -26,21 +24,21 @@ const events = [
           while (phys_speed > 0 && x > 0) { phys_speed--; x--; }
           while (chem_speed > 0 && x > 0) { chem_speed--; x--; }
         }
-      },
+      }, {
+        txt: "不参加", res: () => {}
+      }
+    ]
+  }, {
+    event: "毕业学长返校开展讲座", 
+    opt: [
       {
-        txt: "不参加", res: () => { }
-      }]
-  },
-  {
-    evt: "毕业学长返校开展讲座", opt:
-      [{
         txt: "参加", res: () => {
           math_speed++; phys_speed++; chem_speed++;
         }
-      },
-      {
+      }, {
         txt: "不参加", res: () => { }
-      }]
+      }
+    ]
   }
 ];
 const breakableWeapons = ['bow', 'sword', 'gun', 'rpg', 'laser'];
@@ -55,6 +53,12 @@ const buildingInfo = {
 };
 const westHeight = 14, middleHeight = 11, eastHeight = 7;  // 主干道与上边界距离
 const initX = 6, initY = 46;
+const initBackpack = {
+  senseOfDirection: 0,
+  bullet: 0, cannonball: 0, arrow: 0, medicine: 0,
+  bow: undefined, sword: undefined, gun: undefined, rpg: undefined,
+  laser: undefined
+};
 
 const sortCmp = (a, b) => a - b;
 
@@ -83,12 +87,7 @@ let event_cnt = 0;
 
 // 背包
 let velocity = 1;
-let backpack = {
-  senseOfDirection: 0,
-  bullet: 0, cannonball: 0, arrow: 0, medicine: 0,
-  bow: undefined, sword: undefined, gun: undefined, rpg: undefined,
-  laser: undefined
-};
+let backpack = initBackpack;
 
 let nowX = initX, nowY = initY;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是初始坐标
 let nowCampus;
@@ -131,7 +130,6 @@ function unlog(id) {
   }
 }
 
-// 非 ASCII 字符不要出现在 message 方法及注释外
 function message(expr) {
   switch (expr) {
     // Error
@@ -192,7 +190,7 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
   };
 
   $($('#velocity td')[1]).text(velocity);
-  bind('#velocity', 0, math_value >= 50 && velocity < 399);
+  bind('#velocity', 0, math_value >= 50 && velocity <= 399);
   bind('#velocity', 1, velocity >= 2);
   if (backpack.senseOfDirection >= 1) {
     $('#set_off').addClass('active_box').removeClass('inactive_box');
@@ -202,9 +200,9 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
 
   let link = (id, cost, gain) => {
     $($(`#${id} td`)[1]).text(backpack[gain]);
-    bind(`#${id}`, 0, eval(cost) >= 1 && backpack[gain] < 399);
+    bind(`#${id}`, 0, eval(cost) >= 1 && backpack[gain] <= 399);
     bind(`#${id}`, 1, backpack[gain] >= 1);
-    bind(`#${id}`, 2, eval(cost) >= 10 && backpack[gain] < 390);
+    bind(`#${id}`, 2, eval(cost) >= 10 && backpack[gain] <= 390);
     bind(`#${id}`, 3, backpack[gain] >= 10);
   };
   link('sense_of_direction', 'math_value', 'senseOfDirection');
@@ -371,7 +369,7 @@ function adjustPrepareItem(id, cost, gain) {  // 标签 id，按钮编号，消�
   for (let idx of [0, 1, 2, 3]) {
     let delta = [1, -1, 10, -10][idx];
     $($(`#${id} i`)[idx]).on('mousedown', () => {
-      if (eval(cost) >= delta && backpack[gain] + delta < 10000 &&
+      if (eval(cost) >= delta && backpack[gain] + delta <= 400 &&
         backpack[gain] >= -delta) {
         eval(`${cost} -= ${delta}; backpack.${gain} += ${delta}`);
         updatePrepare();
@@ -397,7 +395,6 @@ function adjustPrepareWeapon(weapon) {
     weapons.push(backpack[weapon]);
     weapons.sort(sortCmp);
     weapons = [...new Set(weapons)];
-    console.log(weapons);
     if (backpack[weapon] === weapons[weapons.length - 1]) { return; }
     eval(`${weapon}s.push(${backpack[weapon]})`);  // 将原来的 push 到最后
     backpack[weapon] = weapons[weapons.indexOf(backpack[weapon]) + 1];
@@ -413,7 +410,6 @@ function adjustPrepareWeapon(weapon) {
     weapons.push(backpack[weapon]);
     weapons.sort(sortCmp);
     weapons = [...new Set(weapons)];
-    console.log(weapons);
     if (backpack[weapon] === weapons[0]) { return; }
     eval(`${weapon}s.push(${backpack[weapon]})`);  // 将原来的 push 到最后
     backpack[weapon] = weapons[weapons.indexOf(backpack[weapon]) - 1];
@@ -431,7 +427,17 @@ function setOff() {
   $('#campus #campus_map').css('display', 'block');
   $('#tab_dorm, #tab_thesis').css('color', 'grey');
   nowCampus = 'middle';
+  discover();
   changeMap(nowCampus);
+}
+function home() {
+  $('#campus #campus_prepare_wrapper, #campus #data_wrapper').css('display', 'block');
+  $('#campus #campus_map, #backpack_wrapper').css('display', 'none');
+  $('#tab_dorm, #tab_thesis').css('color', 'black');
+  backpack.senseOfDirection = 0;
+  velocity = 1;
+  nowCampus = undefined;
+  updateDom();
 }
 function preparePrepare() {
   adjustPrepareItem('sense_of_direction', 'math_value', 'senseOfDirection');
@@ -439,7 +445,7 @@ function preparePrepare() {
     adjustPrepareItem(`${item}_taken`, `${item}s`, item);
   }
   $($('#velocity i')[0]).on('mousedown', () => {
-    if (math_value >= 50 && velocity < 399) {
+    if (math_value >= 50 && velocity <= 399) {
       math_value -= 50; velocity++;
     }
     updateDom();
@@ -464,6 +470,7 @@ function changeMap(name) {
   let mapVst = eval(`${name}Visited`);
   nowCampus = name;
   offMouseBox();
+  discover();
   for (let i = 0; i < mapFile.length; i++) {
     mapStr = mapStr + '\n';
     for (let j = 0; j < mapFile[i].length; j++) {
@@ -587,7 +594,7 @@ function prepareEvent() {
       $(`#eventbox`).css("display", "block");
 
       let eventid = Math.floor(Math.random() * events.length);
-      $(`#eventtext`).text(events[eventid].evt);
+      $(`#eventtext`).text(events[eventid].event);
 
       for (let i = 0; i < events[eventid].opt.length; i++) {
         $(`#eventopt${i}`).css("display", "block");
@@ -612,14 +619,37 @@ function prepareEvent() {
   setInterval(() => checkEvent(), 1000); // 每秒以 1/300 概率尝试生成随机事件
 }
 
+function discover() {
+  let test = (x, y) => (eval(`${nowCampus}Campus`)[nowX + x][nowY + y] === '#');
+  let reach = [];
+  for (let x = -4; x <= 4; ++x) { reach[x] = []; }
+  reach[0][0] = true;
+  for (let times = 1; times <= 3; times++) {
+    for (let x = -3; x <= 3; x++) {
+      for (let y = -3; y <= 3; y++) {
+        if (Math.abs(x) + Math.abs(y) > 3) { continue; }
+        if ((reach[x - 1][y] || reach[x + 1][y] || reach[x][y - 1] || 
+            reach[x][y + 1]) && !test(x, y)) {
+          reach[x][y] = true;
+        }
+      }
+    }
+  }
+  let test2 = (x, y) => Math.abs(x) + Math.abs(y) < 3 && reach[x][y];
+  for (let x = -3; x <= 3; x++) {
+    for (let y = -3; y <= 3; y++) {
+      if (Math.abs(x) + Math.abs(y) > 3) { continue; }
+      if (!(test2(x - 1, y) || test2(x + 1, y) || test2(x, y - 1) ||
+            test2(x, y + 1))) { continue; }
+      if (eval(`${nowCampus}Visited`)[nowX + x][nowY + y] !== undefined) {
+        eval(`${nowCampus}Visited[${nowX + x}][${nowY + y}] = true`);
+      }
+    }
+  }
+}
+
 function moveMe(e) {
   if (nowCampus === undefined) { return; }
-  let updateMap = () => {
-    if (nowCampus === 'campus' && nowX == initX && nowY == initY) {
-      home();
-    }
-    changeMap(nowCampus);
-  };
   let moveToCampus = (id, timeStamp, dx) => {
     setTimeout(() => {
       if (lastMoveTimeStamp === timeStamp) {
@@ -630,12 +660,12 @@ function moveMe(e) {
       }
     }, 1000);
   };
-  let minInterval = 0.5 / velocity;
+  let minInterval = 50 / velocity;
   switch (e.originalEvent.key) {
     case 'ArrowLeft':
       if (nowY == 0) {
-        if (changingCampus) { break; }
-        if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+        if (changingCampus) { return; }
+        if (e.timeStamp - lastMoveTimeStamp < minInterval) { return; }
         lastMoveTimeStamp = e.timeStamp;
         changingCampus = true;
         if (nowCampus === 'middle') { 
@@ -645,15 +675,15 @@ function moveMe(e) {
         }
         break;
       }
-      if (eval(`${nowCampus}Campus`)[nowX][nowY - 1] === '#') { break; }
-      if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+      if (eval(`${nowCampus}Campus`)[nowX][nowY - 1] === '#') { return; }
+      if (e.timeStamp - lastMoveTimeStamp < minInterval) { return; }
       lastMoveTimeStamp = e.timeStamp;
-      nowY--; updateMap();
+      nowY--;
       break;
     case 'ArrowRight':
       if (nowY == 63) {
-        if (changingCampus) { break; }
-        if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+        if (changingCampus) { return; }
+        if (e.timeStamp - lastMoveTimeStamp < minInterval) { return; }
         lastMoveTimeStamp = e.timeStamp;
         changingCampus = true;
         if (nowCampus === 'middle') { 
@@ -663,27 +693,34 @@ function moveMe(e) {
         }
         break;
       }
-      if (eval(`${nowCampus}Campus`)[nowX][nowY + 1] === '#') { break; }
-      if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+      if (eval(`${nowCampus}Campus`)[nowX][nowY + 1] === '#') { return; }
+      if (e.timeStamp - lastMoveTimeStamp < minInterval) { return; }
       lastMoveTimeStamp = e.timeStamp;
-      nowY++; updateMap();
+      nowY++;
       break;
     case 'ArrowUp':
-      if (eval(`${nowCampus}Campus`)[nowX - 1][nowY] === '#') { break; }
-      if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+      if (eval(`${nowCampus}Campus`)[nowX - 1][nowY] === '#') { return; }
+      if (e.timeStamp - lastMoveTimeStamp < minInterval) { return; }
       lastMoveTimeStamp = e.timeStamp;
-      nowX--; updateMap();
+      nowX--;
       break;
     case 'ArrowDown':
-      if (eval(`${nowCampus}Campus`)[nowX + 1][nowY] === '#') { break; }
-      if (e.timeStamp - lastMoveTimeStamp < minInterval) { break; }
+      if (eval(`${nowCampus}Campus`)[nowX + 1][nowY] === '#') { return; }
+      if (e.timeStamp - lastMoveTimeStamp < minInterval) { return; }
       lastMoveTimeStamp = e.timeStamp;
-      nowX++; updateMap();
+      nowX++;
       break;
+    default: return;
   }
+  if (nowCampus === 'middle' && nowX === initX && nowY === initY) {
+    home(); return;
+  }
+  discover();
+  changeMap(nowCampus);
 }
 function moveTab(e) {
   if (nowCampus !== undefined) { return; }
+  if (e.timeStamp - lastMoveTimeStamp <= 1000) { return; }
   if (e.originalEvent.key === 'ArrowLeft') {
     if (nowTab === 'campus') { changeTab('dorm'); }
     if (nowTab === 'thesis') { changeTab('campus'); }

@@ -230,6 +230,8 @@ footer {
   color: grey;
   font-family: monospace;
   font-size: 13px;
+  letter-spacing: 4.175px;
+  line-height: 13px;
 }
 .building, .wall, .me {
   color: black;
