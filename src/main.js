@@ -9,6 +9,10 @@ const achieves = [
   {id: 'one_library', txt: '博览群书，六艺皆通。'},
   {id: 'two_libraries', txt: '古往今来，无所不晓。'},
 ];
+const events = [
+  { txt: '得到学长帮扶，数理基础得到提升', opt: [`确认`] },
+  { txt: '雪天骑车不幸摔倒，可支配时间下降', opt: [`确认`] },
+];
 const breakableWeapons = ['bow', 'sword', 'gun', 'rpg', 'laser'];
 const items = ['bow', 'sword', 'gun', 'rpg', 'laser', 'bullet', 'cannonball',
                'arrow', 'medicine'];
@@ -35,6 +39,9 @@ let showBow = false, showRpg = false, showLaser = false, showMedicine = false;
 let learntPowder = false, learntDynamite = false;
 
 let logTexts = [];  // { id: [string], text: [string] }
+
+// 事件正在发生
+let showEvent = false;
 
 // 背包
 let velocity = 1;
@@ -469,6 +476,25 @@ function prepareWeapon() {
   for (let weapon of producableWeapons) {
     $(`#${weapon}`).on('mousedown', () => { buyWeapon(weapon); });
   }
+}
+function prepareEvent() {
+  let prob = 1 / 300;
+  let checkEvent = () => {
+    let cur = Math.random();
+    console.log(nowTab, showEvent, cur);
+    if (nowTab == 'dorm' && !showEvent && cur < prob) {
+      showEvent = true;
+      $(`#darkfilter`).css("display", "block");
+      $(`#eventbox`).css("display", "block");
+
+      setTimeout(() => {
+        $(`#darkfilter`).css("display", "none");
+        $(`#eventbox`).css("display", "none");
+        showEvent = false;
+      }, 10000);
+    }
+  };
+  setInterval(() => checkEvent(), 1000);
 }
 
 function main() {
