@@ -1,40 +1,63 @@
-html { user-select: none; }
+html {
+  user-select: none;
+}
+
 header {
   user-select: none;
   margin: 20px;
   font-size: 20px;
   margin-bottom: 35px;
 }
+
 header #stage {
   margin-right: 30px;
 }
-#tabs > * {
+
+#tabs>* {
   user-select: none;
   margin-left: 8px;
   margin-right: 8px;
 }
-#tabs > #tab_dorm {
+
+#tabs>#tab_dorm {
   display: inherit;
   text-decoration: underline;
 }
-#event, #advancement {
+
+#event,
+#advancement {
   border-color: black;
   border-style: solid;
   padding: 8px;
   margin-left: 30px;
 }
 
-#dorm, #campus, #thesis {
+#dorm,
+#campus,
+#thesis {
   margin-top: 20px;
   padding-left: 30px;
 }
-#dorm > *, #campus > *, #thesis > * {
+
+#dorm>*,
+#campus>*,
+#thesis>* {
   float: left;
   padding: 10px;
 }
-#log_wrapper { width: 150px; }
-#adjust_and_weapon, #campus_prepare_wrapper { width: 220px; }
-#data_wrapper { width: 200px; }
+
+#log_wrapper {
+  width: 150px;
+}
+
+#adjust_and_weapon,
+#campus_prepare_wrapper {
+  width: 220px;
+}
+
+#data_wrapper {
+  width: 200px;
+}
 
 #log_hidder {
   position: absolute;
@@ -43,26 +66,33 @@ header #stage {
   min-height: calc(100% - 80px);
   width: 170px;
   z-index: 1;
-  background: linear-gradient(rgba(255, 255, 255, 0), 
-                             rgba(255, 255, 255, 1));
+  background: linear-gradient(rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 1));
 }
 
-div#adjust, #campus_adjust_box {
+div#adjust,
+#campus_adjust_box {
   border-style: solid;
   padding: 5px;
 }
-table#adjust, #campus_adjust {
+
+table#adjust,
+#campus_adjust {
   border-style: none;
   padding: 5px;
   width: 100%;
 }
-table#adjust td, #campus_adjust td {
+
+table#adjust td,
+#campus_adjust td {
   text-align: right;
   padding-left: 3px;
   padding-right: 3px;
 }
-table#adjust td.subject, #campus_adjust td.item { 
-  text-align: left; 
+
+table#adjust td.subject,
+#campus_adjust td.item {
+  text-align: left;
 }
 
 #weapon {
@@ -70,10 +100,16 @@ table#adjust td.subject, #campus_adjust td.item {
   margin-right: 10px;
   margin-top: 10px;
 }
-#weapon > * { float: left; width: 45%;}
+
+#weapon>* {
+  float: left;
+  width: 45%;
+}
+
 #produce_weapon {
   margin-right: 5%;
 }
+
 #study_weapon {
   margin-left: 5%;
 }
@@ -86,6 +122,7 @@ table#adjust td.subject, #campus_adjust td.item {
   margin-top: 10px;
   margin-bottom: 10px;
 }
+
 .active_box:hover {
   text-decoration: underline;
 }
@@ -104,9 +141,11 @@ table#adjust td.subject, #campus_adjust td.item {
   border-style: solid;
   padding: 10px;
 }
-#data > table {
+
+#data>table {
   width: 100%;
 }
+
 td.value {
   text-align: right;
 }
@@ -120,14 +159,34 @@ td.value {
   display: none;
 }
 
+.optionbox {
+  border-style: solid;
+  padding: 5px;
+  width: 60px;
+  text-align: center;
+  margin-top: 5px;
+  margin-right: 80px;
+  margin-bottom: 5px;
+  float: right;
+}
+
+.optionbox:hover {
+  text-decoration: underline;
+}
+
+#eventtext {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
 #eventbox {
   display: none;
   position: fixed;
   border-style: solid;
   top: 5%;
   left: 25%;
-  width: 50%;
-  height: 80px;
+  width: 400px;
+  height: 120px;
   z-index: 99;
   background-color: white;
   border-radius: 5px;
@@ -145,7 +204,9 @@ td.value {
 }
 
 /* DOM 元素的掩盖，避免在 JS 未加载完毕时剧透剧情 */
-#data tr:not(.math_value), #phys_inc, #chem_inc,
+#data tr:not(.math_value),
+#phys_inc,
+#chem_inc,
 #campus_adjus tr:not(#sense_of_direction):not(#velocity) {
   display: none;
 }
@@ -157,6 +218,7 @@ footer {
   left: 0px;
   top: calc(100% - 50px);
 }
+
 #footer_content {
   display: block;
   float: right;

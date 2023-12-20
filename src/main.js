@@ -5,19 +5,49 @@ $(main);
 const tabIds = ['dorm', 'campus', 'thesis'];
 const subjects = ['math', 'phys', 'chem'];
 const achieves = [
-  {id: 'avoid_hit', txt: '找到别人打不到的地方。'},
-  {id: 'one_library', txt: '博览群书，六艺皆通。'},
-  {id: 'two_libraries', txt: '古往今来，无所不晓。'},
+  { id: 'avoid_hit', txt: '找到别人打不到的地方。' },
+  { id: 'one_library', txt: '博览群书，六艺皆通。' },
+  { id: 'two_libraries', txt: '古往今来，无所不晓。' },
 ];
 const events = [
-  { txt: '得到学长帮扶，数理基础得到提升', opt: [`确认`] },
-  { txt: '雪天骑车不幸摔倒，可支配时间下降', opt: [`确认`] },
+  {
+    evt: "数理基础得到进一步巩固", opt:
+      [{
+        txt: "确认", res: () => { math_value += 100; phys_value += 100; }
+      }]
+  },
+  {
+    evt: "美丽邂逅开始了报名", opt:
+      [{
+        txt: "参加", res: () => {
+          let x = 2;
+          while (rest_speed > 0 && x > 0) { rest_speed--; x--; }
+          while (math_speed > 0 && x > 0) { math_speed--; x--; }
+          while (phys_speed > 0 && x > 0) { phys_speed--; x--; }
+          while (chem_speed > 0 && x > 0) { chem_speed--; x--; }
+        }
+      },
+      {
+        txt: "不参加", res: () => { }
+      }]
+  },
+  {
+    evt: "毕业学长返校开展讲座", opt:
+      [{
+        txt: "参加", res: () => {
+          math_speed++; phys_speed++; chem_speed++;
+        }
+      },
+      {
+        txt: "不参加", res: () => { }
+      }]
+  }
 ];
 const breakableWeapons = ['bow', 'sword', 'gun', 'rpg', 'laser'];
 const items = ['bow', 'sword', 'gun', 'rpg', 'laser', 'bullet', 'cannonball',
-               'arrow', 'medicine'];
+  'arrow', 'medicine'];
 const producableWeapons = ['sword', 'gun', 'bullet', 'rpg', 'cannonball',
-                           'laser'];
+  'laser'];
 const bowMax = 10, swordMax = 10, gunMax = 50, rpgMax = 50, laserMax = 100;
 
 const sortCmp = (a, b) => a - b;
@@ -40,8 +70,9 @@ let learntPowder = false, learntDynamite = false;
 
 let logTexts = [];  // { id: [string], text: [string] }
 
-// 事件正在发生
+// 随机事件正在发生
 let showEvent = false;
+let event_cnt = 0;
 
 // 背包
 let velocity = 1;
@@ -75,7 +106,7 @@ function updateLogDom() {
 }
 function log(str) {
   let randomId = Math.random().toString(36).substring(2);
-  logTexts.unshift({id: randomId, text: str});
+  logTexts.unshift({ id: randomId, text: str });
   updateLogDom();
   while ($('.log').height() > window.innerHeight - 120) {
     logTexts.pop();
@@ -170,14 +201,14 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
   for (let item of ['bullet', 'cannonball', 'arrow', 'medicine']) {
     link(`${item}_taken`, `${item}s`, item);
   }
-  
+
   let check = (weapon) => {
     $($(`#${weapon}_taken i`)[0]).removeClass('fa-square')
-                                 .addClass('fa-square-check');
+      .addClass('fa-square-check');
   };
   let uncheck = (weapon) => {
     $($(`#${weapon}_taken i`)[0]).removeClass('fa-square-check')
-                                 .addClass('fa-square');
+      .addClass('fa-square');
   };
   for (let weapon of breakableWeapons) {
     let durability = '??';
@@ -191,9 +222,9 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
     $($(`#${weapon}_taken td`)[1]).text(durability);
     let weapons = eval(`${weapon}s.sort(sortCmp)`);
     bind(`#${weapon}_taken`, 1, backpack[weapon] !== undefined &&
-        backpack[weapon] < weapons[weapons.length - 1]);
-    bind(`#${weapon}_taken`, 2, 
-        backpack[weapon] !== undefined && backpack[weapon] > weapons[0]);
+      backpack[weapon] < weapons[weapons.length - 1]);
+    bind(`#${weapon}_taken`, 2,
+      backpack[weapon] !== undefined && backpack[weapon] > weapons[0]);
   }
 }
 
@@ -234,12 +265,13 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
   if (learntDynamite) {
     $('#dynamite').addClass('inactive_box').removeClass('active_box');
   }
-  
+
   // 增量调整栏
   $($('#rest td')[1]).text(rest_speed);
 
   let bind = (row, idx, expr) => {
-    $($(`${row} i`)[idx]).css('color', expr ? 'black' : 'grey'); };
+    $($(`${row} i`)[idx]).css('color', expr ? 'black' : 'grey');
+  };
   for (let sub of subjects) {
     $($(`#${sub}_inc td`)[1]).text(eval(`${sub}_speed`));
     bind(`#${sub}_inc`, 0, rest_speed >= 1);
@@ -266,7 +298,7 @@ function prepareDataRows() {
         let str = '耐久度: ';
         let tmp = eval(`${weapon}s`);
         if (tmp.length === 0) { return; }
-        tmp.sort(sortCmp); 
+        tmp.sort(sortCmp);
         let count = 0, max = eval(`${weapon}Max`);
         for (let i = tmp.length - 1; i >= 0; --i) {
           count++;
@@ -279,7 +311,7 @@ function prepareDataRows() {
       })
       .on('mouseleave', () => { offMouseBox(); });
   }
-  
+
   for (let ach of achieves) {
     $(`.${ach.id}`)
       .on('mouseover', () => { onMouseBox(ach.txt); })
@@ -290,7 +322,7 @@ function prepareDataRows() {
 function changeInc(subject, index) {  // 学科 id；按钮编号
   switch (index) {
     case 0:  // +1
-      if (rest_speed >= 1) { 
+      if (rest_speed >= 1) {
         rest_speed--; eval(`${subject}_speed++`);
       }
       break;
@@ -319,9 +351,9 @@ function prepareInc() {
         .on('mousedown', () => { changeInc(subject, i); });
     }
     setInterval(() => {
-        eval(`${subject}_value += ${subject}_speed`);
-        updateValue();
-      }, 10000);
+      eval(`${subject}_value += ${subject}_speed`);
+      updateValue();
+    }, 10000);
   }
 }
 
@@ -330,7 +362,7 @@ function adjustPrepareItem(id, cost, gain) {  // 标签 id，按钮编号，消�
     let delta = [1, -1, 10, -10][idx];
     $($(`#${id} i`)[idx]).on('mousedown', () => {
       if (eval(cost) >= delta && backpack[gain] + delta < 10000 &&
-          backpack[gain] >= -delta) {
+        backpack[gain] >= -delta) {
         eval(`${cost} -= ${delta}; backpack.${gain} += ${delta}`);
         updatePrepare();
         updateValue();
@@ -480,21 +512,38 @@ function prepareWeapon() {
 function prepareEvent() {
   let prob = 1 / 300;
   let checkEvent = () => {
-    let cur = Math.random();
-    console.log(nowTab, showEvent, cur);
-    if (nowTab == 'dorm' && !showEvent && cur < prob) {
+    if (nowTab == 'dorm' && !showEvent && Math.random() < prob) {
+      event_cnt++;
+      let cur = event_cnt;
+
       showEvent = true;
       $(`#darkfilter`).css("display", "block");
       $(`#eventbox`).css("display", "block");
 
-      setTimeout(() => {
-        $(`#darkfilter`).css("display", "none");
-        $(`#eventbox`).css("display", "none");
-        showEvent = false;
-      }, 10000);
+      let eventid = Math.floor(Math.random() * events.length);
+      $(`#eventtext`).text(events[eventid].evt);
+
+      for (let i = 0; i < events[eventid].opt.length; i++) {
+        $(`#eventopt${i}`).css("display", "block");
+        $(`#eventopt${i}`).text(events[eventid].opt[i].txt);
+      }
+      if (events[eventid].opt.length == 1) {
+        $(`#eventopt1`).css("display", "none");
+      }
+
+      for (let i = 0; i < events[eventid].opt.length; i++) {
+        $(`#eventopt${i}`).on('mousedown', () => {
+          if (cur != event_cnt) return;
+          $(`#darkfilter`).css("display", "none");
+          $(`#eventbox`).css("display", "none");
+          showEvent = false;
+          events[eventid].opt[i].res();
+          updateDom();
+        });
+      }
     }
   };
-  setInterval(() => checkEvent(), 1000);
+  setInterval(() => checkEvent(), 1000); // 每秒以 1/300 概率尝试生成随机事件
 }
 
 function main() {
@@ -505,8 +554,8 @@ function main() {
   prepareInc();
   prepareWeapon();
   preparePrepare();  // 准备“出发前的准备”
+  prepareEvent();
   for (let tabId of tabIds) {
     $(`#tab_${tabId}`).on('click', () => { changeTab(tabId); });
   }
-  changeTab('campus');
 }
