@@ -224,3 +224,10 @@ footer {
   float: right;
   margin-right: 30px;
 }
+
+#campus_map {
+  display: none;
+  color: grey;
+  font-family: monospace;
+  font-size: 13px;
+}

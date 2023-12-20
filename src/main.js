@@ -83,6 +83,9 @@ let backpack = {
   laser: undefined
 };
 
+let nowX = 6, nowY = 46;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是初始坐标
+let nowCampus = 'middle';
+
 function debugSaveFile() {
   math_value = phys_value = chem_value = 10000;
   bows = [1, 2, 3, 4];
@@ -434,6 +437,42 @@ function preparePrepare() {
   for (let weapon of breakableWeapons) {
     adjustPrepareWeapon(weapon);
   }
+  $('#set_off').on('mousedown', () => {
+    if (backpack.senseOfDirection > 0) {
+      $('#campus #campus_prepare_wrapper').css('display', 'none');
+      $('#campus #data_wrapper').css('display', 'none');
+      $('#campus #campus_map').css('display', 'block');
+      changeMap('east');
+    }
+  });
+}
+
+function changeMap(name) {
+  let mapStr = '';
+  for (let line of eval(`${name}Campus`)) {
+    mapStr = mapStr + '\n';
+    for (let ch of line) {
+      let str = '';
+      switch (ch) {
+        case '.': str = 'Dot'; break;
+        case '#': str = 'Sharp'; break;
+        default: str = 'Building' + ch;
+      }
+      mapStr += str;
+    }
+  }
+  $('#campus_map').text(mapStr.substring(1));
+  $('#campus_map')  // TODO: 减少这里 span 的数量，最后将不必要的删去
+    .html($('#campus_map').html().replace(/\n/g, '<br/>'))
+    .html($('#campus_map').html().replace(/Dot/g,
+      '.'))
+    .html($('#campus_map').html().replace(/Sharp/g,
+      '<span class="wall">#</span>'));
+  for (let ch of 'LTGR8CPHOA') {
+    eval(`$('#campus_map').html($('#campus_map').html().replace(
+          /Building${ch}/g, 
+          '<span class="building building_${ch}">${ch}</span>'))`);
+  }
 }
 
 function buyWeapon(weapon) {
@@ -558,4 +597,10 @@ function main() {
   for (let tabId of tabIds) {
     $(`#tab_${tabId}`).on('click', () => { changeTab(tabId); });
   }
+
+  changeTab('campus');
+  $('#campus #campus_prepare_wrapper').css('display', 'none');
+  $('#campus #data_wrapper').css('display', 'none');
+  $('#campus #campus_map').css('display', 'block');
+  changeMap('east');
 }
