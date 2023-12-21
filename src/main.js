@@ -5,13 +5,14 @@ $(main);
 const tabIds = ['dorm', 'campus', 'thesis'];
 const subjects = ['math', 'phys', 'chem'];
 const achieves = [
-  { id: 'avoid_hit', txt: '找到别人打不到的地方。' },
-  { id: 'one_library', txt: '博览群书，六艺皆通。' },
-  { id: 'two_libraries', txt: '古往今来，无所不晓。' },
+  { id: 'avoid_hit', txt: '找到别人打不到的地方。', name: '避实就虚' },
+  { id: 'one_library', txt: '博览群书，六艺皆通。', name: '学富五车' },
+  { id: 'two_libraries', txt: '古往今来，无所不晓。', name: '才高八斗' },
+  { id: 'barehand_killer', txt: '空手以敌千军万马', name: '徒手战士' }
 ];
 const events = [
   {
-    event: "数理基础得到进一步巩固", 
+    event: "数理基础得到进一步巩固",
     opt: [{ txt: "确认", res: () => { math_value += 100; phys_value += 100; } }]
   }, {
     event: "美丽邂逅开始了报名",
@@ -25,11 +26,11 @@ const events = [
           while (chem_speed > 0 && x > 0) { chem_speed--; x--; }
         }
       }, {
-        txt: "不参加", res: () => {}
+        txt: "不参加", res: () => { }
       }
     ]
   }, {
-    event: "毕业学长返校开展讲座", 
+    event: "毕业学长返校开展讲座",
     opt: [
       {
         txt: "参加", res: () => {
@@ -81,9 +82,12 @@ let learntPowder = false, learntDynamite = false;
 let logTexts = [];  // { id: [string], text: [string] }
 let lastMoveTimeStamp = 0, changingCampus = false;
 
-// 随机事件正在发生
+// 随机事件
 let showEvent = false;
-let event_cnt = 0;
+let currnet_event = 0;
+
+// 成就
+let current_achieve = 0;
 
 // 背包
 let velocity = 1;
@@ -99,7 +103,7 @@ function debugSaveFile() {
   guns = [12, 12, 2, 2, 20];
   lasers = [7, 7, 17, 19, 30];
   rpgs = [3, 7, 10, 20, 20];
-  achieved = ['avoid_hit', 'one_library', 'two_libraries'];
+  // achieved = ['avoid_hit', 'one_library', 'two_libraries'];
   arrows = cannonballs = bullets = medicines = 30;
   showBow = showPhys = showChem = showRpg = showLaser = showMedicine = true;
   learntDynamite = learntPowder = true;
@@ -494,7 +498,7 @@ function changeMap(name) {
     .html($('#campus_map').html().replace(/\n/g, '<br/>'))
     .html($('#campus_map').html().replace(/Dot/g, '.'))
     .html($('#campus_map').html().replace(/Space/g, '&nbsp;'))
-    .html($('#campus_map').html().replace(/Me/g, '<span class="me">@</span>'))  
+    .html($('#campus_map').html().replace(/Me/g, '<span class="me">@</span>'))
     .html($('#campus_map').html().replace(/Sharp/g,
       '<span class="wall">#</span>'));
   for (let ch of 'LTGR8CPHOA') {
@@ -504,7 +508,7 @@ function changeMap(name) {
   }
   for (let ch of 'LTGR8CPHOA') {
     $(`.building_${ch}`).on('mouseover', () => onMouseBox(buildingInfo[ch]))
-                        .on('mouseleave', () => offMouseBox());
+      .on('mouseleave', () => offMouseBox());
   }
   $('.me').on('mouseleave', () => offMouseBox());  // 必要的
 }
@@ -586,8 +590,8 @@ function prepareEvent() {
   let prob = 1 / 300;
   let checkEvent = () => {
     if (nowTab == 'dorm' && !showEvent && Math.random() < prob) {
-      event_cnt++;
-      let cur = event_cnt;
+      currnet_event++;
+      let cur = currnet_event;
 
       showEvent = true;
       $(`#darkfilter`).css("display", "block");
@@ -606,7 +610,7 @@ function prepareEvent() {
 
       for (let i = 0; i < events[eventid].opt.length; i++) {
         $(`#eventopt${i}`).on('mousedown', () => {
-          if (cur != event_cnt) return;
+          if (cur != currnet_event) return;
           $(`#darkfilter`).css("display", "none");
           $(`#eventbox`).css("display", "none");
           showEvent = false;
@@ -619,6 +623,31 @@ function prepareEvent() {
   setInterval(() => checkEvent(), 1000); // 每秒以 1/300 概率尝试生成随机事件
 }
 
+function makeAchievement(achieveId) {
+  if (achieved.indexOf(achieveId) != -1) return;
+  let remain_time = 3000;
+
+  let achieveIndex = -1;
+  for (let i = 0; i < achieves.length; i++)
+    if (achieves[i].id == achieveId)
+      achieveIndex = i;
+
+  // console.log(achieveIndex);
+  if (achieveIndex == -1) return;
+  current_achieve = achieveIndex;
+
+  $(`#achievementtext`).text(achieves[achieveIndex].name);
+  $(`#achievementbox`).css("display", "block");
+
+  setTimeout(() => {
+    if (current_achieve == achieveIndex) {
+      $(`#achievementbox`).css("display", "none");
+    }
+  }, remain_time);
+  achieved.push(achieveId);
+  updateDom();
+}
+
 function discover() {
   let test = (x, y) => (eval(`${nowCampus}Campus`)[nowX + x][nowY + y] === '#');
   let reach = [];
@@ -628,8 +657,8 @@ function discover() {
     for (let x = -3; x <= 3; x++) {
       for (let y = -3; y <= 3; y++) {
         if (Math.abs(x) + Math.abs(y) > 3) { continue; }
-        if ((reach[x - 1][y] || reach[x + 1][y] || reach[x][y - 1] || 
-            reach[x][y + 1]) && !test(x, y)) {
+        if ((reach[x - 1][y] || reach[x + 1][y] || reach[x][y - 1] ||
+          reach[x][y + 1]) && !test(x, y)) {
           reach[x][y] = true;
         }
       }
@@ -640,7 +669,7 @@ function discover() {
     for (let y = -3; y <= 3; y++) {
       if (Math.abs(x) + Math.abs(y) > 3) { continue; }
       if (!(test2(x - 1, y) || test2(x + 1, y) || test2(x, y - 1) ||
-            test2(x, y + 1))) { continue; }
+        test2(x, y + 1))) { continue; }
       if (eval(`${nowCampus}Visited`)[nowX + x][nowY + y] !== undefined) {
         eval(`${nowCampus}Visited[${nowX + x}][${nowY + y}] = true`);
       }
@@ -656,7 +685,7 @@ function moveMe(e) {
         nowX -= dx;
         nowY = 63 - nowY;
         changingCampus = false;
-        changeMap(id); 
+        changeMap(id);
       }
     }, 1000);
   };
@@ -668,7 +697,7 @@ function moveMe(e) {
         if (e.timeStamp - lastMoveTimeStamp < minInterval) { return; }
         lastMoveTimeStamp = e.timeStamp;
         changingCampus = true;
-        if (nowCampus === 'middle') { 
+        if (nowCampus === 'middle') {
           moveToCampus('west', lastMoveTimeStamp, middleHeight - westHeight);
         } else {
           moveToCampus('middle', lastMoveTimeStamp, eastHeight - middleHeight);
@@ -686,7 +715,7 @@ function moveMe(e) {
         if (e.timeStamp - lastMoveTimeStamp < minInterval) { return; }
         lastMoveTimeStamp = e.timeStamp;
         changingCampus = true;
-        if (nowCampus === 'middle') { 
+        if (nowCampus === 'middle') {
           moveToCampus('east', lastMoveTimeStamp, middleHeight - eastHeight);
         } else {
           moveToCampus('middle', lastMoveTimeStamp, westHeight - middleHeight);
@@ -742,7 +771,7 @@ function main() {
   $(document).on('keyup', (e) => moveTab(e));
   prepareEvent();
   for (let tabId of tabIds) {
-    $(`#tab_${tabId}`).on('click', () => { 
+    $(`#tab_${tabId}`).on('click', () => {
       if (nowCampus === undefined) { changeTab(tabId); }
     });
   }
