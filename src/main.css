@@ -244,7 +244,8 @@ td.value {
 #phys_inc,
 #chem_inc,
 #campus_adjust tr:not(#sense_of_direction):not(#velocity),
-#backpack tr:not(#sense_of_direction_left) {
+#backpack tr:not(#sense_of_direction_left),
+#weapon {
   display: none;
 }
 
@@ -296,7 +297,7 @@ footer {
   float: right;
 }
 
-#combat {
+#combat, #campus_event {
   width: 200px;
 }
 #combat_me_dodge, #combat_foe_dodge {
@@ -322,8 +323,10 @@ footer {
 .my_moving_attack {
   display: inline;
   left: calc(100% - 20px);
-  /* transition-property: left;
-  transition-duration: 0.5s; */
+}
+#combat_foe_attack.foe_moving_attack {
+  display: inline;
+  left: 15px;
 }
 #combat_me_dodge.dodging, #combat_foe_dodge.dodging {
   color: black;
@@ -367,4 +370,12 @@ footer {
   position: absolute;
   top: 0px;
   left: 0px;
+}
+
+#set_off {
+  position: relative;
+  display: inherit;
+  width: 80px;
+  margin-top: 10px;
+  float: right;
 }

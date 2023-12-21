@@ -26,18 +26,18 @@ const middleCampus = [
   '################################################################'
 ];
 
-let middleVisited = new Array(22).fill().map(x => new Array(64).fill(false));
+let middleVisited = new Array(22).fill().map(x => new Array(64).fill(true));
 
-// 上 14 下 16, 64x34
+// 上 14 下 16, 64x34，有微调
 const westCampus = [
   '################################################################',
   '#..............................................................#',
   '#..............................................................#',
-  '#.....T...........R.......................C....................#',
+  '#.....T...........R.......................T....................#',
   '#..............................................................#',
   '#..............................................................#',
   '#........############....############..........##..............#',
-  '#...P....############....############..........##.....T........#',
+  '#...P....############....############..........##.....C........#',
   '#....................................####......##..............#',
   '#....................................####......##..............#',
   '#................................T...####......##..............#',
@@ -66,7 +66,7 @@ const westCampus = [
   '################################################################',
 ];
 
-let westVisited = new Array(34).fill().map(x => new Array(64).fill(false));
+let westVisited = new Array(34).fill().map(x => new Array(64).fill(true));
 
 // 上 7 下 27, 64x38
 const eastCampus = [
@@ -110,11 +110,165 @@ const eastCampus = [
   '################################################################',
 ];
 
-let eastVisited = new Array(38).fill().map(x => new Array(64).fill(false));
+let eastVisited = new Array(38).fill().map(x => new Array(64).fill(true));
 
 let buildings = [
   {
+    campus: 'east', x: 3, y: 43, name: '地空环境实验室',
+    entered: false, finished: false, type: 'chem'
+  },
+  {
+    campus: 'east', x: 3, y: 59, name: '管理科学楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'east', x: 8, y: 28, name: '第一教学楼',
+    entered: false, finished: false, type: 'phys'
+  },
+  {
+    campus: 'east', x: 12, y: 44, name: '第二教学楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'east', x: 16, y: 44, name: '少年班学院',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'east', x: 20, y: 9, name: '洁净能源实验室',
+    entered: false, finished: false, type: 'chem'
+  },
+  {
+    campus: 'east', x: 20, y: 9, name: '洁净能源实验室',
+    entered: false, finished: false, type: 'chem'
+  },
+  {
+    campus: 'east', x: 34, y: 5, name: '东区礼堂',
+    entered: false, finished: false, type: 'hall'
+  },
+  {
+    campus: 'east', x: 20, y: 27, name: '行政楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'east', x: 27, y: 27, name: '东区图书馆',
+    entered: false, finished: false, type: 'library'
+  },
+  {
+    campus: 'east', x: 34, y: 44, name: '物质科学楼',
+    entered: false, finished: false, type: 'phys'
+  },
+  {
+    campus: 'east', x: 27, y: 49, name: '美食广场',
+    entered: false, finished: false, type: 'canteen'
+  },
+  {
+    campus: 'east', x: 20, y: 50, name: '东苑餐厅',
+    entered: false, finished: false, type: 'canteen'
+  },
+
+  {
+    campus: 'west', x: 3, y: 6, name: '创新创业中心',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 3, y: 18, name: '西区食堂',
+    entered: false, finished: false, type: 'canteen'
+  },
+  {
+    campus: 'west', x: 3, y: 42, name: '科技实验楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 7, y: 4, name: '科技实验楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 17, y: 3, name: '特种实验楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 21, y: 3, name: '火灾实验楼',
+    entered: false, finished: false, type: 'chem'
+  },
+  {
+    campus: 'west', x: 16, y: 16, name: '工程学院楼',
+    entered: false, finished: false, type: 'phys'
+  },
+  {
+    campus: 'west', x: 11, y: 17, name: '3C教学楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 11, y: 26, name: '3B教学楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 10, y: 33, name: '3A教学楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 18, y: 27, name: '电三楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 30, y: 7, name: '国家同步辐射实验室',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 28, y: 18, name: 'KTX实验室',
+    entered: false, finished: false, type: 'phys'
+  },
+  {
+    campus: 'west', x: 30, y: 36, name: '加速器软物质实验室',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 31, y: 29, name: '8348咖啡厅',
+    entered: false, finished: false, type: 'cafe'
+  },
+  {
+    campus: 'west', x: 29, y: 45, name: '气膜馆',
+    entered: false, finished: false, type: 'gym'
+  },
+  {
+    campus: 'west', x: 25, y: 58, name: '芳华餐厅',
+    entered: false, finished: false, type: 'canteen'
+  },
+  {
+    campus: 'west', x: 18, y: 43, name: '电二楼',
+    entered: false, finished: false, type: 'teach'
+  },
+  {
+    campus: 'west', x: 13, y: 47, name: '西区图书馆',
+    entered: false, finished: false, type: 'library'
+  },
+  {
+    campus: 'west', x: 7, y: 54, name: '生命科学大楼',
+    entered: false, finished: false, type: 'chem'
+  },
+
+  {
     campus: 'middle', x: 5, y: 6, name: '应用化学楼',
     entered: false, finished: false, type: 'chem'
-  }
+  },
+  {
+    campus: 'middle', x: 10, y: 6, name: '理化实验中心',
+    entered: false, finished: false, type: 'teach',
+  },
+  {
+    campus: 'middle', x: 18, y: 6, name: '艺术教育中心',
+    entered: false, finished: false, type: 'art',
+  },
+  {
+    campus: 'middle', x: 18, y: 18, name: '桃李苑',
+    entered: false, finished: false, type: 'canteen',
+  },
+  {
+    campus: 'middle', x: 17, y: 45, name: '体育馆',
+    entered: false, finished: false, type: 'gym',
+  },
+  {
+    campus: 'middle', x: 17, y: 54, name: '本科生院',
+    entered: false, finished: false, type: 'phys',
+  },
 ]

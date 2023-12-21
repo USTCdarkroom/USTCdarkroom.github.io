@@ -23,8 +23,10 @@ const initBackpack = {
   laser: undefined
 };
 const maxHp = 100;
+const deathPenalty = 3;
 
 const sortCmp = (a, b) => a - b;
+const randBetween = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 
 let nowTab = 'dorm';
 
@@ -41,6 +43,8 @@ let achieved = [];  // 仅存成就 id
 let showPhys = false, showChem = false;
 let showBow = false, showRpg = false, showLaser = false, showMedicine = false;
 let learntPowder = false, learntDynamite = false;
+let stage = 1;  // 年级数，到一个图书馆大二，两个则大三，碰见教授则大四，答辩延毕则大五，
+// 再延毕大六，再延毕辍学（游戏失败）。
 
 let logTexts = [];  // { id: [string], text: [string] }
 let lastMoveTimeStamp = 0, changingCampus = false;
@@ -58,11 +62,11 @@ let backpack = JSON.parse(JSON.stringify(initBackpack));
 
 let nowX = initX, nowY = initY;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是初始坐标
 let nowCampus;
-let hp, foeHp;
+let hp = maxHp, foeHp, foe, dodgeProb = 0, building;
 
 let confirmCallback = () => {};  // campus_event_button 的回调函数
 
-function debugSaveFile() {
+function debugSaveFile() { return; 
   mathValue = physValue = chemValue = 10000;
   bows = [1, 2, 3, 4];
   swords = [10, 7, 3, 9, 2];
@@ -74,11 +78,13 @@ function debugSaveFile() {
   showBow = showPhys = showChem = showRpg = showLaser = showMedicine = true;
   learntDynamite = learntPowder = true;
 
-  backpack.senseOfDirection = 1000;
+  backpack.senseOfDirection = 300;
   backpack.bow = backpack.gun = backpack.sword = backpack.rpg = 
-      backpack.laser = 10;
+      10;
   backpack.bullet = backpack.medicine = backpack.cannonball = 70;
   backpack.arrow = 70;
+  velocity = 20;
+  showLaser = false;
 }
 
 function updateLogDom() {
@@ -107,6 +113,7 @@ function unlog(id) {
 }
 
 function message(expr) {
+  if (expr === 'learnt rpg') { throw 'x'; }
   switch (expr) {
     // Error
     case 'math low': log('数学能力不足。'); break;
@@ -116,8 +123,14 @@ function message(expr) {
     case '!learnt dynamite': log('还未掌握炸药制造。'); break;
 
     // Info
+    case 'phys learnt': log('开始学习物理。'); break;
+    case 'bow learnt': log('发现了弓箭。'); break;
+    case 'chem learnt': log('开始学习化学。'); break;
     case 'powder learnt': log('掌握了火药的制造。'); break;
     case 'dynamite learnt': log('掌握了炸药的制造。'); break;
+    case 'medicine learnt': log('发现了治疗药剂。'); break;
+    case 'rpg learnt': log('掌握了火炮的制造。'); break;
+    case 'laser learnt': log('掌握了光剑的制造。'); break;
     case 'buy sword': log('制作了一把铁剑。'); break;
     case 'buy gun': log('制作了一把步枪。'); break;
     case 'buy bullet': log('制作了一颗子弹。'); break;
@@ -130,6 +143,14 @@ function message(expr) {
     case 'senseOfDirection <= 0': log('方向感用完了。'); break;
     case 'death of senseOfDirection':
       log('眼前的道路诡异地扭曲直至消失，回过神来已经被送到了宿舍。'); break;
+    case 'death of boxer':
+      log('被拳击手击败。'); break;
+    case 'death of archer':
+      log('被弓箭手击败。'); break;
+    case 'death of druggist':
+      log('被药剂师击败。'); break;
+    case 'death of swordsman':
+      log('被剑客击败。'); break;
     default: log('${' + expr + '}'); break;
   }
 }
@@ -156,6 +177,7 @@ function offMouseBox() {
 }
 
 function updateValue() {  // 更新能力值、物品数。因为很常用于是单独拿出来。
+  updatePrepare();
   for (let sub of subjects) {
     $(`.${sub}_value td.value`).text(eval(`${sub}Value`));
   }
@@ -174,10 +196,11 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
   $($('#velocity td')[1]).text(velocity);
   bind('#velocity', 0, mathValue >= 50 && velocity <= 399);
   bind('#velocity', 1, velocity >= 2);
-  if (backpack.senseOfDirection >= 1) {
-    $('#set_off').addClass('active_box').removeClass('inactive_box');
+  if (backpack.senseOfDirection >= 1 && 
+      $('#set_off .cooldown').css('width') === '0px') {
+    $('#set_off').removeClass('disabled');
   } else {
-    $('#set_off').addClass('inactive_box').removeClass('active_box');
+    $('#set_off').addClass('disabled');
   }
 
   let link = (id, cost, gain) => {
@@ -218,7 +241,7 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
   }
 }
 
-function updateBackpack() {  // 更新背包栏。
+function updateBackpack() {  // 更新背包栏和战斗栏。
   let changeText = (row, text) => {
     $($(`#${row}_left td`)[1]).text(text);
   };
@@ -232,6 +255,11 @@ function updateBackpack() {  // 更新背包栏。
     } else {
       changeText(weapon, backpack[weapon] * 100 / eval(`${weapon}Max`) + '%');
     }
+  }
+  $('#combat_my_hp').text(`${hp}/${maxHp}`);
+  if (foe !== undefined) {
+    $('#combat_foe_hp').text(`${foeHp}/${combatInfo[foe].hp}`);
+    $('#combat_foe').text(`${combatInfo[foe].char}`);
   }
 }
 
@@ -257,8 +285,8 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
   if (showPhys && showChem) { $('.study_weapon').css('display', 'inherit'); }
   var show = (weapon) => {
     $('.' + weapon).css('display', 'inherit');
-    $(`.${weapon}_count`).css('display', 'table-row');
-    $(`#${weapon}_taken`).css('display', 'table-row');
+    $(`.${weapon}_count, #${weapon}_taken, #${weapon}_left`)
+        .css('display', 'table-row');
   };
   if (showBow) { show('bow'); show('arrow'); }
   if (showPhys) { show('sword'); }
@@ -292,14 +320,14 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
 }
 
 function prepareDataRows() {
-  $('.mathValue').on('mouseover', 
+  $('.math_value').on('mouseover', 
       () => { onMouseBox(`数学能力: +${mathSpeed}/10s`); });
-  $('.physValue').on('mouseover', 
+  $('.phys_value').on('mouseover', 
       () => { onMouseBox(`物理能力: +${physSpeed}/10s`); });
-  $('.chemValue').on('mouseover',
+  $('.chem_value').on('mouseover',
       () => { onMouseBox(`化学能力: +${chemSpeed}/10s`); });
   for (let i of subjects) {
-    $(`.${i}Value`).on('mouseleave', () => { offMouseBox(); });
+    $(`.${i}_value`).on('mouseleave', () => { offMouseBox(); });
   }
 
   for (let weapon of breakableWeapons) {
@@ -363,7 +391,7 @@ function prepareInc() {
     setInterval(() => {
       eval(`${subject}Value += ${subject}Speed`);
       updateValue();
-    }, 10000);
+    }, 1000);  // TODO: 改回来。 10s.
   }
 }
 
@@ -424,6 +452,7 @@ function adjustPrepareWeapon(weapon) {
 }
 
 function setOff() {
+  if ($('#set_off').hasClass('disabled')) { return; }
   $('#campus #campus_prepare_wrapper').css('display', 'none');
   $('#campus #data_wrapper').css('display', 'none');
   $('#campus #campus_map, #backpack_wrapper').css('display', 'block');
@@ -460,6 +489,7 @@ function home() {
   $('#campus_event, #combat').css('display', 'none');
   $('#tab_dorm, #tab_thesis').css('color', 'black');
   nowCampus = undefined;
+  velocity = 1;
   for (let item of breakableWeapons) {
     if (backpack[item] !== undefined) {
       eval(`${item}s.push(${backpack[item]})`);
@@ -467,6 +497,7 @@ function home() {
     }
   }
   for (let item of items) {
+    $(`#use_${item}`).css('display', 'none');
     if (breakableWeapons.indexOf(item) !== -1) { continue; }
     eval(`${item}s++`);
   }
@@ -711,24 +742,144 @@ function discover() {
   }
 }
 
+function showCampusEventBox(title, content, callback = () => {}) {
+  $('#campus_event_title').text(title);
+  $('#campus_event_content')
+      .text(content)
+      .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
+  $('#campus_event').css('display', 'inherit');
+  confirmCallback = callback;
+}
+
+// 这里砍怪可以改成更 dedicated 的复用代码，但是考虑到要加教学楼限定怪就没搞。
 function campusEvent(type) {
+  let gain;
+  let physStr = '物理能力得到提高';
+  if (!showPhys) {
+    physStr = '学习了物理';
+  }
   switch (type) {
     case 'pick_chem':
       $('#campus_event_title').text('拾起化学材料');
       log('地上有一根废弃的试管。');
-      let delta = Math.ceil(Math.random() * 51) + 49;
+      gain = randBetween(50, 100);
+      let str = '化学能力得到提高。';
+      if (!showChem) {
+        showChem = true;
+        message('chem learnt');
+        str = '学习了化学。';
+      }
       $('#campus_event_content')
-        .text(`化学能力得到提高。\n获得：\n化学能力 x${delta}`)
+        .text(`${str}\n\n获得：\n化学能力 x${gain}`)
         .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
-      chemValue += delta;
+      chemValue += gain;
       $('#campus_event').css('display', 'inherit');
+      break;
+    
+    case 'kill_boxer':
+      $('#campus_event_title').text('击败拳击手');
+      log('拳击手倒下了。');
+      gain = randBetween(10, 30);
+      $('#campus_event_content')
+        .text(`${physStr}。\n\n获得：\n物理能力 x${gain}`)
+        .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
+      physValue += gain;
+      $('#campus_event').css('display', 'inherit');
+      break;
+    case 'kill_archer':
+      $('#campus_event_title').text('击败弓箭手');
+      log('弓箭手倒下了。');
+      gain = randBetween(10, 30);
+      let gainBowArrow = Math.random() < 0.5;
+      if (gainBowArrow) {
+        if (!showBow) {
+          showBow = true;
+          message('bow learnt');
+        }
+        let bowGained = randBetween(1, 10);
+        let arrowGained = randBetween(1, 3);
+        if (backpack.arrow === 0 || backpack.bow === undefined) {
+          $('#use_bow').removeClass('disabled').css('display', 'inherit');
+        }
+        backpack.arrow += arrowGained;
+        if (backpack.bow === undefined) {
+          backpack.bow = bowGained;
+        } else {
+          backpack.bow = Math.min(bowMax, backpack.bow + bowGained);
+        }
+        $('#campus_event_content')
+          .text(`${physStr}，同时获得了一套弓箭。\n\n获得：\n物理能力 x${gain}` +
+                `\n弓 ${bowGained * 100 / bowMax}%\n箭 x${arrowGained}`
+          )
+          .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
+      } else {
+        $('#campus_event_content')
+          .text(`${physStr}。\n\n获得：\n物理能力 x${gain}`)
+          .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
+      }
+      physValue += gain;
+      $('#campus_event').css('display', 'inherit');
+      break;
+    case 'kill_swordsman':
+      $('#campus_event_title').text('击败剑客');
+      log('剑客倒下了。');
+      gain = randBetween(50, 100);
+      $('#campus_event_content')
+        .text(`${physStr}。\n\n获得：\n物理能力 x${gain}`)
+        .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
+      physValue += gain;
+      $('#campus_event').css('display', 'inherit');
+      break;
+    case 'kill_druggist':
+      $('#campus_event_title').text('击败药剂师');
+      log('药剂师倒下了。');
+      gain = randBetween(50, 100);
+      let gainMedicine = Math.random() < 0.5;
+      if (gainMedicine) {
+        if (!showMedicine) {
+          showMedicine = true;
+          message('medicine learnt');
+        }
+        if (backpack.medicine === 0) {
+          $('#use_medicine').removeClass('disabled').css('display', 'inherit');
+          $($('.combat_row')[3]).css('height', '44px');
+        }
+        backpack.medicine++;
+        $('#campus_event_content')
+          .text(`${physStr}，同时获得了一枚药剂。\n\n获得：\n物理能力 x${gain}` +
+                `\n药剂 x1`)
+          .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
+      } else {
+        $('#campus_event_content')
+          .text(`${physStr}。\n\n获得：\n物理能力 x${gain}`)
+          .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
+      }
+      physValue += gain;
+      $('#campus_event').css('display', 'inherit');
+      break;
+    
+    case 'drink_coffee':
+      showCampusEventBox('喝咖啡', '喝了杯咖啡。');
+      break;
+    case 'watch_movie':
+      showCampusEventBox('看电影', '看了场电影。');
+      break;
+    case 'have_meal':
+      showCampusEventBox('吃饭', '吃了顿饭，方向感提高。');
+      backpack.senseOfDirection += 10;
+      break;
+    case 'exercise':
+      showCampusEventBox('锻炼', '锻炼，方向感提高。');
+      backpack.senseOfDirection += 10;
       break;
   }
 }
 
-function updateCooldown(selector, percentage, seconds) {
+function updateCombatCooldown(selector, percentage, seconds) {
   percentage -= 1 / seconds;
-  $(`${selector} .cooldown`).css('width', `${percentage}%`);
+  if ($('#combat').css('display') !== 'none') {
+    $(`${selector} .cooldown`).css('width', `${percentage}%`);
+  }
   if (Math.abs(percentage) < 1e-5 || $('#combat').css('display') === 'none') {
     let item = selector.substring(5);
     if (items.indexOf(item) === -1 || backpack[item] >= 1) {
@@ -736,14 +887,44 @@ function updateCooldown(selector, percentage, seconds) {
     }
     return;
   }
-  setTimeout(() => updateCooldown(selector, percentage, seconds), 10);
+  setTimeout(() => updateCombatCooldown(selector, percentage, seconds), 10);
 }
-// 除非你知道你在做什么，否则不要传给 selector 形如 [5字符]+[items 内字符串] 的形式
-function startCooldown(selector, seconds) {
+function updateCooldown(selector, percentage, seconds, callback) {
+  percentage -= 1 / seconds;
+  $(`${selector} .cooldown`).css('width', `${percentage}%`);
+  if (Math.abs(percentage) < 1e-5) {
+    $(`${selector} .cooldown`).css('width', '0%');
+    $(selector).removeClass('disabled');
+    callback();
+    return;
+  }
+  setTimeout(() => updateCooldown(selector, percentage, seconds, callback), 10);
+}
+function startCombatCooldown(selector, seconds) {
   $(selector).addClass('disabled');
-  updateCooldown(selector, 100, seconds);
+  updateCombatCooldown(selector, 100, seconds);
+}
+function startCooldown(selector, seconds, callback = () => {}) {
+  $(selector).addClass('disabled');
+  updateCooldown(selector, 100, seconds, callback);
 }
 
+function endCombat() {
+  for (let item of breakableWeapons) {
+    $(`#combat_my_${item}`).removeClass('my_moving_attack');
+    $(`#use_${item} .cooldown`).css('width', '0%');
+  }
+  $('#combat_my_fist').removeClass('my_moving_attack');
+  $('#use_fist .cooldown').css('width', '0%');
+  $('#use_medicine .cooldown').css('width', '0%');
+  $('#combat_foe_attack').removeClass('foe_moving_attack');
+  $('#combat').css('display', 'none');
+  if (hp === 0) { dead(foe); return; }
+  confirmCallback = combatCallback;
+  campusEvent(`kill_${foe}`);
+}
+
+let dodgeCombatCheckId;
 function prepareCombat() {
   for (let item of breakableWeapons) {
     $(`#use_${item}`).on('mousedown', () => {
@@ -754,35 +935,60 @@ function prepareCombat() {
         $(`#use_${item}`).addClass('disabled');
         return;
       }
-      foeHp = Math.max(0, foeHp - info.damage);
+      let damage = info.damage;
+      if (Math.random() < combatInfo[foe].dodgeProb) {
+        damage = 0;
+        $('#combat_foe_dodge').addClass('dodging');
+        let id = Math.random();
+        dodgeCombatCheckId = id;
+        setTimeout(() => {
+          if (dodgeCombatCheckId === id) {
+            $('#combat_foe_dodge').removeClass('dodging');
+          }
+        }, 500);
+      }
+      foeHp = Math.max(0, foeHp - damage);
       if (info.cost !== undefined) { backpack[info.cost]--; }
       backpack[item]--;
       updateBackpack();
+      if (foeHp === 0) { endCombat(); return; }
       if (backpack[item] === 0) { backpack[item] = undefined; }
       $(`#combat_my_${item}`).css('display', 'inline');
-      // TODO: combat 结束后要关闭下面这个。
       setTimeout(() => $(`#combat_my_${item}`).addClass('my_moving_attack'), 1);
       // 这里有可能 501ms 之后已经是另一颗子弹了（另一个战斗页面）
       setTimeout(
         () => $(`#combat_my_${item}`).css('display', 'none')
                                      .removeClass('my_moving_attack')
       , 501);
-      startCooldown(`#use_${item}`, info.interval);
+      startCombatCooldown(`#use_${item}`, info.interval);
     });
   };
   $('#use_fist').on('mousedown', () => {
     if ($('#use_fist').hasClass('disabled')) { return; }
     let info = attackInfo.fist;
-    foeHp = Math.max(0, foeHp - info.damage);
+    let damage = info.damage;
+    if (Math.random() < combatInfo[foe].dodgeProb) {
+      damage = 0;
+      $('#combat_foe_dodge').addClass('dodging');
+      let id = Math.random();
+      dodgeCombatCheckId = id;
+      setTimeout(() => {
+        if (dodgeCombatCheckId === id) {
+          $('#combat_foe_dodge').removeClass('dodging');
+        }
+      }, 500);
+    }
+    foeHp = Math.max(0, foeHp - damage);
+    updateBackpack();
+    if (foeHp === 0) { endCombat(); return; }
     $('#combat_my_fist').css('display', 'inline');
-    // TODO: combat 结束后要关闭下面这个。
     setTimeout(() => $('#combat_my_fist').addClass('my_moving_attack'), 1);
     // 这里有可能 501ms 之后已经是另一颗子弹了（另一个战斗页面）
     setTimeout(
       () => $('#combat_my_fist').css('display', 'none')
                                 .removeClass('my_moving_attack')
     , 501);
-    startCooldown('#use_fist', info.interval);
+    startCombatCooldown('#use_fist', info.interval);
   });
   $('#use_medicine').on('mousedown', () => {
     if ($('#use_medicine').hasClass('disabled')) { return; }
@@ -793,15 +999,105 @@ function prepareCombat() {
     hp = Math.min(maxHp, hp + 50);
     backpack.medicine--;
     updateBackpack();
-    startCooldown('#use_medicine', 3);
+    startCombatCooldown('#use_medicine', 3);
   });
 }
 
-function combat(type) {
+function foeAttack() {
+  if ($('#combat').css('display') === 'none') { return; }
+  let damage = randBetween(combatInfo[foe].minDamage, 
+                           combatInfo[foe].maxDamage);
+  if (Math.random() < dodgeProb) {
+
+  }
+  hp = Math.max(0, hp - damage);
+  if (hp === 0) { endCombat(); return; }
+  updateBackpack();
+  $('#combat_foe_attack').css('display', 'inline');
+  setTimeout(() => $('#combat_foe_attack').addClass('foe_moving_attack'), 1);
+  setTimeout(
+    () => $('#combat_foe_attack').css('display', 'none')
+                                 .removeClass('foe_moving_attack')
+  , 501);
+  setTimeout(foeAttack, combatInfo[foe].interval * 1000);
+}
+
+let combatCallback = () => {};
+function combat(type, callback = () => {}) {
+  combatCallback = callback;
   $('#combat').css('display', 'inherit');
   let info = combatInfo[type];
-  log(info.log);
+  $('#combat_foe').text(info.char);
+  hp = maxHp;
+  $('#combat_foe_attack').text(info.bullet);
+  $('#combat_foe_hp').text(`${info.hp}/${info.hp}`);
   $('#combat_title').text(info.name);
+  foe = type;
+  foeHp = info.hp;
+  log(info.log);
+  setTimeout(foeAttack, info.interval * 1000);
+}
+
+function dead(cause) {
+  message(`death of ${cause}`);
+  backpack = JSON.parse(JSON.stringify(initBackpack));
+  startCooldown('#set_off', deathPenalty, () => {
+    if (backpack.senseOfDirection === 0) {
+      $('#set_off').addClass('disabled');
+    }
+  });
+  home();
+}
+
+function enterBuilding() {
+  if (building.finished) {
+    switch (building.type) {
+      case 'cafe': campusEvent('drink_coffee'); break;
+      case 'hall': campusEvent('watch_movie'); break;
+      case 'canteen': campusEvent('have_meal'); break;
+      case 'gym': campusEvent('exercise'); break;
+      default:
+        showCampusEventBox(building.name, '这里已经没有什么好害怕的了。');
+    }
+    return;
+  }
+  showCampusEventBox(building.name, '一句话形容这个地方陌生、使人退却。', () => {
+  let index = Math.floor(Math.random() * (nowCampus === 'middle' ? 2 : 4));
+  combat(['boxer', 'archer', 'swordsman', 'druggist'][index], () => {
+  building.finished = true;
+  if (building.type === 'chem' && !showChem) {
+    message('chem learnt');
+    showChem = true;
+  }
+  if (building.type === 'chem' && !showRpg) {
+    message('rpg learnt');
+    showRpg = true;
+  }
+  if (building.type === 'phys' && !showLaser) {
+    message('laser learnt');
+    showLaser = true;
+  }
+  let str = `${building.name}现在安全了。`, gain;
+  switch (building.type) {
+    case 'teach':
+      gain = randBetween(50, 100);
+      mathValue += gain;
+      str += `\n\n获得：\n数学能力值 x${gain}`;
+      break;
+    case 'phys':
+      gain = randBetween(50, 100);
+      physValue += gain;
+      str += `\n\n获得：\n物理能力值 x${gain}`;
+      break;
+    case 'chem':
+      gain = randBetween(50, 100);
+      chemValue += gain;
+      str += `\n\n获得：\n化学能力值 x${gain}`;
+      break;
+  }
+  showCampusEventBox(building.name, str);
+  });
+  });
 }
 
 function moveMe(e) {
@@ -878,13 +1174,18 @@ function moveMe(e) {
   if (backpack.senseOfDirection === 5) { message('senseOfDirection <= 5'); }
   if (backpack.senseOfDirection === 0) { message('senseOfDirection <= 0'); }
   if (backpack.senseOfDirection === -1) {
-    message('death of senseOfDirection');
-    backpack = JSON.parse(JSON.stringify(initBackpack));
-    home();
+    dead('senseOfDirection');
     return;
   }
   updateBackpack();
   changeMap(nowCampus);
+  for (building of buildings) {
+    if (building.campus === nowCampus && building.x === nowX && 
+        building.y === nowY) {
+      enterBuilding(); return;
+    }
+  }
+  // return;
   if (nowCampus === 'middle' && Math.hypot(nowX - initX, nowY - initY) < 10) {
     return;
   }
@@ -905,6 +1206,10 @@ function moveTab(e) {
     if (nowTab === 'campus') { changeTab('thesis'); }
     if (nowTab === 'dorm') { changeTab('campus'); }
   }
+}
+
+function meetMentor() {
+  // 生成一个导师，不过需求里没写怎么生成，我也不知道 thesis 怎么调用。
 }
 
 function main() {
@@ -928,8 +1233,8 @@ function main() {
   changeTab('campus');
   $('#campus_event_button').on('mousedown', () => {
     $('#campus_event').css('display', 'none');
+    updateBackpack();
     confirmCallback();
   });
   setOff();
-  combat('archer');
 }

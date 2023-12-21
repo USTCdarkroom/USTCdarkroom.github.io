@@ -229,7 +229,10 @@
           </tr>
         </table>
       </div>
-      <div id="set_off" class="inactive_box">出发</div>
+      <div id="set_off" class="cooldown_box">
+        出发
+        <div class="cooldown"></div>
+      </div>
     </div>
     <div id="data_wrapper">
       <div id="data">
@@ -309,7 +312,7 @@
         <span id="combat_me_dodge">躲闪</span>
         <span id="combat_foe_dodge">躲闪</span>
         <br/>
-        <div id="comat_line">
+        <div id="combat_line">
         <span id="combat_me">@</span>
         <span class="combat_my_attack" id="combat_my_fist">o</span>
         <span class="combat_my_attack" id="combat_my_bow">></span>
@@ -318,10 +321,10 @@
         <span class="combat_my_attack" id="combat_my_rpg">*</span>
         <span class="combat_my_attack" id="combat_my_laser">K</span>
         <span id="combat_foe_attack">o</span>
-        <span id="combat_foe">A</span>
+        <span id="combat_foe">?</span>
         </div>
         <span id="combat_my_hp">100/100</span>
-        <span id="combat_foe_hp">50/50</span>
+        <span id="combat_foe_hp">?/?</span>
       </div>
       <div id="combat_options">
         <div class="combat_row">
@@ -432,7 +435,7 @@
   </div>
 
   <footer>
-    <div id="footer_content">v0.7</div>
+    <div id="footer_content">v0.8</div>
   </footer>
 </body>
 
