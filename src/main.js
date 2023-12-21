@@ -58,6 +58,13 @@ let backpack = JSON.parse(JSON.stringify(initBackpack));
 let nowX = initX, nowY = initY;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是初始坐标
 let nowCampus;
 
+// 导师
+let showTeacher = [false, false, false];
+let joinGroup = [false, false, false];
+let writeThesis = [false, false, false];
+let checkingCnt = [0, 0, 0];
+let nowDefense = false;
+
 function debugSaveFile() {
   math_value = phys_value = chem_value = 10000;
   bows = [1, 2, 3, 4];
@@ -69,6 +76,11 @@ function debugSaveFile() {
   arrows = cannonballs = bullets = medicines = 30;
   showBow = showPhys = showChem = showRpg = showLaser = showMedicine = true;
   learntDynamite = learntPowder = true;
+
+  showTeacher = [true, true, true];
+  joinGroup = [false, true, true];
+  writeThesis = [false, true, false];
+  checkingCnt = [0, 3, 0];
 }
 
 function updateLogDom() {
@@ -120,6 +132,9 @@ function message(expr) {
     case 'senseOfDirection <= 0': log('方向感用完了。'); break;
     case 'death of senseOfDirection':
       log('眼前的道路诡异地扭曲直至消失，回过神来已经被送到了宿舍。'); break;
+    case 'join group': log('加入了一个课题组'); break;
+    case 'write thesis': log('撰写了一篇论文'); break;
+    case 'check thesis': log('对论文进行了一次推敲'); break;
     default: log('${' + expr + '}'); break;
   }
 }
@@ -279,15 +294,26 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
 
   // 出发准备栏
   updatePrepare();
+
+  // 导师
+  for (let idx = 0; idx < 3; idx++) {
+    if (showTeacher[idx]) $("#" + subjects[idx] + "_teacher_wrapper").css("display", "block");
+    if (showTeacher[idx] && !joinGroup[idx]) $("#" + subjects[idx] + "_joingroup").css("display", "block");
+    else $("#" + subjects[idx] + "_joingroup").css("display", "none");
+    if (joinGroup[idx] && !writeThesis[idx]) $("#" + subjects[idx] + "_writethesis").css("display", "block");
+    else $("#" + subjects[idx] + "_writethesis").css("display", "none");
+    if (writeThesis[idx]) $("#" + subjects[idx] + "_checking").css("display", "block");
+    if (checkingCnt[idx] >= 3) $("#" + subjects[idx] + "_defense").css("display", "block");
+  }
 }
 
 function prepareDataRows() {
-  $('.math_value').on('mouseover', 
-      () => { onMouseBox(`数学能力: +${math_speed}/10s`); });
-  $('.phys_value').on('mouseover', 
-      () => { onMouseBox(`物理能力: +${phys_speed}/10s`); });
+  $('.math_value').on('mouseover',
+    () => { onMouseBox(`数学能力: +${math_speed}/10s`); });
+  $('.phys_value').on('mouseover',
+    () => { onMouseBox(`物理能力: +${phys_speed}/10s`); });
   $('.chem_value').on('mouseover',
-      () => { onMouseBox(`化学能力: +${chem_speed}/10s`); });
+    () => { onMouseBox(`化学能力: +${chem_speed}/10s`); });
   for (let i of subjects) {
     $(`.${i}_value`).on('mouseleave', () => { offMouseBox(); });
   }
@@ -580,7 +606,7 @@ function prepareWeapon() {
 function prepareEvent() {
   let prob = 1 / 300;
   let checkEvent = () => {
-    if (nowTab == 'dorm' && !showEvent && Math.random() < prob) {
+    if (nowCampus == undefined && nowDefense == false && !showEvent && Math.random() < prob) {
       currentEvent++;
       let cur = currentEvent;
 
@@ -763,6 +789,49 @@ function moveTab(e) {
     if (nowTab === 'dorm') { changeTab('campus'); }
   }
 }
+function prepareThesis() {
+  for (let idx = 0; idx < 3; idx++) {
+    let subId = subjects[idx];
+
+    $("#" + subId + "_joingroup").on('mousedown', () => {
+      if (joinGroup[idx]) return;
+      joinGroup[idx] = true;
+      message("join group");
+      updateDom();
+    });
+
+    $("#" + subId + "_writethesis").on('mousedown', () => {
+      if (writeThesis[idx]) return;
+      if (eval(subId + "_value < 1000")) { message(subId + ' low'); return; }
+      writeThesis[idx] = true;
+      message("write thesis");
+      eval(subId + "_value -= 1000");
+      updateDom();
+    });
+
+    $("#" + subId + "_checking").on('mousedown', () => {
+      if (eval(subId + "_value < 500")) { message(subId + ' low'); return; }
+      checkingCnt[idx]++;
+      message("check thesis");
+      eval(subId + "_value -= 500");
+      updateDom();
+    });
+
+    $("#" + subId + "_defense").on('mousedown', () => {
+      if (nowDefense) return;
+      startDefense(checkingCnt[idx]);
+    });
+  }
+}
+function startDefense(checkcnt) {
+  nowDefense = true;
+  $(".thesis_main").css("display", "none");
+
+  setTimeout(() => {
+    $(".thesis_main").css("display", "block");
+    nowDefense = false;
+  }, 3000);
+}
 
 function main() {
   debugSaveFile();
@@ -772,9 +841,10 @@ function main() {
   prepareInc();
   prepareWeapon();
   preparePrepare();  // 准备“出发前的准备”
+  prepareEvent();
+  prepareThesis();
   $(document).on('keydown', (e) => moveMe(e));
   $(document).on('keyup', (e) => moveTab(e));
-  prepareEvent();
   for (let tabId of tabIds) {
     $(`#tab_${tabId}`).on('click', () => {
       if (nowCampus === undefined) { changeTab(tabId); }
