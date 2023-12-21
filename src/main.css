@@ -246,7 +246,8 @@ td.value {
 #data tr:not(.math_value),
 #phys_inc,
 #chem_inc,
-#campus_adjus tr:not(#sense_of_direction):not(#velocity) {
+#campus_adjust tr:not(#sense_of_direction):not(#velocity),
+#backpack tr:not(#sense_of_direction_left) {
   display: none;
 }
 
@@ -319,4 +320,119 @@ footer {
 
 .thesis_choicebox:hover {
   text-decoration: underline;
+}
+
+#campus_event,
+#combat {
+  border-style: solid;
+  display: none;
+  top: 120px;
+  left: 500px;
+  position: fixed;
+  z-index: 99;
+  background-color: white;
+}
+
+#campus_event_title,
+#combat_title {
+  font-weight: bold;
+}
+
+#campus_event_button {
+  width: 55px;
+  padding: 3px;
+  float: right;
+}
+
+#combat {
+  width: 200px;
+}
+
+#combat_me_dodge,
+#combat_foe_dodge {
+  color: white;
+  transition-property: color;
+  transition-duration: 0.2s;
+}
+
+#combat_foe_hp,
+#combat_foe_dodge,
+#combat_foe {
+  float: right;
+}
+
+.combat_my_attack,
+#combat_foe_attack {
+  position: absolute;
+  display: none;
+  transition-property: left;
+  transition-duration: 0.5s;
+}
+
+.combat_my_attack {
+  left: 20px;
+}
+
+#combat_foe_attack {
+  left: calc(100% - 25px);
+}
+
+.my_moving_attack {
+  display: inline;
+  left: calc(100% - 20px);
+  /* transition-property: left;
+  transition-duration: 0.5s; */
+}
+
+#combat_me_dodge.dodging,
+#combat_foe_dodge.dodging {
+  color: black;
+}
+
+.combat_row {
+  height: 44px;
+}
+
+.cooldown_box {
+  position: absolute;
+  left: 5px;
+  width: calc(50% - 28px);
+  display: none;
+  border-style: solid;
+  padding: 5px;
+  margin: 5px;
+  text-align: center;
+}
+
+#use_fist.cooldown_box {
+  display: inherit;
+}
+
+.cooldown_box.right {
+  right: 5px;
+  left: auto;
+}
+
+.cooldown_box:hover {
+  text-decoration: underline;
+}
+
+.cooldown_box.disabled {
+  border-color: lightgrey;
+  color: grey;
+}
+
+.cooldown_box.disabled:hover {
+  text-decoration: none;
+}
+
+.cooldown {
+  overflow: hidden;
+  height: 100%;
+  width: 0%;
+  background-color: lightgrey;
+  z-index: -1;
+  position: absolute;
+  top: 0px;
+  left: 0px;
 }
