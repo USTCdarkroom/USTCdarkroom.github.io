@@ -9,7 +9,10 @@ const achieves = [
 const events = [
   {
     event: "数理基础得到进一步巩固",
-    opt: [{ txt: "确认", res: () => { mathValue += 100; physValue += 100; } }]
+    opt: [{ txt: "确认", res: () => {
+      mathValue += 100;
+      if (showPhys) { physValue += 100; }
+    } }]
   }, {
     event: "美丽邂逅开始了报名",
     opt: [
