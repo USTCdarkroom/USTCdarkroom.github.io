@@ -156,7 +156,7 @@ function message(expr) {
     // Info in campus
     case 'senseOfDirection <= 5': log('方向感快用完了。'); break;
     case 'senseOfDirection <= 0': log('方向感用完了。'); break;
-    case 'death of senseOfDirection': 
+    case 'death of senseOfDirection':
       log('眼前的道路诡异地扭曲直至消失，回过神来已经被送到了宿舍。'); break;
     default: log('${' + expr + '}'); break;
   }
@@ -460,7 +460,7 @@ function setOff() {
 }
 function home() {
   $('#campus #campus_prepare_wrapper, #campus #data_wrapper')
-      .css('display', 'block');
+    .css('display', 'block');
   $('#campus #campus_map, #backpack_wrapper').css('display', 'none');
   $('#tab_dorm, #tab_thesis').css('color', 'black');
   backpack.senseOfDirection = 0;
@@ -662,10 +662,14 @@ function makeAchievement(achieveId) {
   current_achieve = achieveIndex;
 
   $(`#achievementtext`).text(achieves[achieveIndex].name);
+  $(`#achievementtext`).css("display", "block");
+  $(`#reachachievement`).css("display", "block");
   $(`#achievementbox`).css("display", "block");
 
   setTimeout(() => {
     if (current_achieve == achieveIndex) {
+      $(`#achievementtext`).css("display", "none");
+      $(`#reachachievement`).css("display", "none");
       $(`#achievementbox`).css("display", "none");
     }
   }, remain_time);
