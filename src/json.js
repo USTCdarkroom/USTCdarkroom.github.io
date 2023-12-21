@@ -8,7 +8,7 @@ const achieves = [
 ];
 const events = [
   {
-    event: "数理基础得到进一步巩固", 
+    event: "数理基础得到进一步巩固",
     opt: [{ txt: "确认", res: () => { math_value += 100; phys_value += 100; } }]
   }, {
     event: "美丽邂逅开始了报名",
@@ -16,21 +16,21 @@ const events = [
       {
         txt: "参加", res: () => {
           let x = 2;
-          while (rest_speed > 0 && x > 0) { rest_speed--; x--; }
-          while (math_speed > 0 && x > 0) { math_speed--; x--; }
-          while (phys_speed > 0 && x > 0) { phys_speed--; x--; }
-          while (chem_speed > 0 && x > 0) { chem_speed--; x--; }
+          while (restSpeed > 0 && x > 0) { restSpeed--; x--; }
+          while (mathSpeed > 0 && x > 0) { mathSpeed--; x--; }
+          while (physSpeed > 0 && x > 0) { physSpeed--; x--; }
+          while (chemSpeed > 0 && x > 0) { chemSpeed--; x--; }
         }
       }, {
-        txt: "不参加", res: () => {}
+        txt: "不参加", res: () => { }
       }
     ]
   }, {
-    event: "毕业学长返校开展讲座", 
+    event: "毕业学长返校开展讲座",
     opt: [
       {
         txt: "参加", res: () => {
-          math_speed++; phys_speed++; chem_speed++;
+          mathSpeed++; physSpeed++; chemSpeed++;
         }
       }, {
         txt: "不参加", res: () => { }
