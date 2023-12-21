@@ -678,7 +678,8 @@ function prepareWeapon() {
 function prepareEvent() {
   let prob = 1 / 300;
   let checkEvent = () => {
-    if (nowCampus == undefined && nowDefense == false && !showEvent && Math.random() < prob) {
+    if (nowCampus == undefined && nowDefense == false && !showEvent && 
+        Math.random() < prob) {
       currentEvent++;
       let cur = currentEvent;
 
