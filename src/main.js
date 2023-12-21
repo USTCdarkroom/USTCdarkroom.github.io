@@ -22,14 +22,15 @@ const initBackpack = {
   bow: undefined, sword: undefined, gun: undefined, rpg: undefined,
   laser: undefined
 };
+const maxHp = 100;
 
 const sortCmp = (a, b) => a - b;
 
 let nowTab = 'dorm';
 
 // 能力值及增速 
-let math_speed = 0, phys_speed = 0, chem_speed = 0, rest_speed = 20;
-let math_value = 0, phys_value = 0, chem_value = 0;
+let mathSpeed = 0, physSpeed = 0, chemSpeed = 0, restSpeed = 20;
+let mathValue = 0, physValue = 0, chemValue = 0;
 
 // 道具库
 let bows = [], swords = [], guns = [], rpgs = [], lasers = [];  // 仅存工具耐久度
@@ -57,9 +58,12 @@ let backpack = JSON.parse(JSON.stringify(initBackpack));
 
 let nowX = initX, nowY = initY;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是初始坐标
 let nowCampus;
+let hp, foeHp;
+
+let confirmCallback = () => {};  // campus_event_button 的回调函数
 
 function debugSaveFile() {
-  math_value = phys_value = chem_value = 10000;
+  mathValue = physValue = chemValue = 10000;
   bows = [1, 2, 3, 4];
   swords = [10, 7, 3, 9, 2];
   guns = [12, 12, 2, 2, 20];
@@ -69,6 +73,12 @@ function debugSaveFile() {
   arrows = cannonballs = bullets = medicines = 30;
   showBow = showPhys = showChem = showRpg = showLaser = showMedicine = true;
   learntDynamite = learntPowder = true;
+
+  backpack.senseOfDirection = 1000;
+  backpack.bow = backpack.gun = backpack.sword = backpack.rpg = 
+      backpack.laser = 10;
+  backpack.bullet = backpack.medicine = backpack.cannonball = 70;
+  backpack.arrow = 70;
 }
 
 function updateLogDom() {
@@ -108,12 +118,12 @@ function message(expr) {
     // Info
     case 'powder learnt': log('掌握了火药的制造。'); break;
     case 'dynamite learnt': log('掌握了炸药的制造。'); break;
-    case 'buy sword': log('制作了一把剑。'); break;
-    case 'buy gun': log('制作了一把枪。'); break;
+    case 'buy sword': log('制作了一把铁剑。'); break;
+    case 'buy gun': log('制作了一把步枪。'); break;
     case 'buy bullet': log('制作了一颗子弹。'); break;
-    case 'buy rpg': log('制作了一个火箭筒。'); break;
+    case 'buy rpg': log('制作了一个火炮。'); break;
     case 'buy cannonball': log('制作了一枚炮弹。'); break;
-    case 'buy laser': log('制作了一副激光武器。'); break;
+    case 'buy laser': log('制作了一副光剑。'); break;
 
     // Info in campus
     case 'senseOfDirection <= 5': log('方向感快用完了。'); break;
@@ -147,7 +157,7 @@ function offMouseBox() {
 
 function updateValue() {  // 更新能力值、物品数。因为很常用于是单独拿出来。
   for (let sub of subjects) {
-    $(`.${sub}_value td.value`).text(eval(`${sub}_value`));
+    $(`.${sub}_value td.value`).text(eval(`${sub}Value`));
   }
   for (let item of items) {
     let count = eval(`${item}s`);
@@ -162,7 +172,7 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
   };
 
   $($('#velocity td')[1]).text(velocity);
-  bind('#velocity', 0, math_value >= 50 && velocity <= 399);
+  bind('#velocity', 0, mathValue >= 50 && velocity <= 399);
   bind('#velocity', 1, velocity >= 2);
   if (backpack.senseOfDirection >= 1) {
     $('#set_off').addClass('active_box').removeClass('inactive_box');
@@ -177,7 +187,7 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
     bind(`#${id}`, 2, eval(cost) >= 10 && backpack[gain] <= 390);
     bind(`#${id}`, 3, backpack[gain] >= 10);
   };
-  link('sense_of_direction', 'math_value', 'senseOfDirection');
+  link('sense_of_direction', 'mathValue', 'senseOfDirection');
   for (let item of ['bullet', 'cannonball', 'arrow', 'medicine']) {
     link(`${item}_taken`, `${item}s`, item);
   }
@@ -220,7 +230,7 @@ function updateBackpack() {  // 更新背包栏。
     if (backpack[weapon] === undefined) {
       changeText(weapon, '--');
     } else {
-      changeText(weapon, backpack[weapon] * 100 / eval(`${weapon}Max` + '%'));
+      changeText(weapon, backpack[weapon] * 100 / eval(`${weapon}Max`) + '%');
     }
   }
 }
@@ -264,17 +274,17 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
   }
 
   // 增量调整栏
-  $($('#rest td')[1]).text(rest_speed);
+  $($('#rest td')[1]).text(restSpeed);
 
   let bind = (row, idx, expr) => {
     $($(`${row} i`)[idx]).css('color', expr ? 'black' : 'grey');
   };
   for (let sub of subjects) {
-    $($(`#${sub}_inc td`)[1]).text(eval(`${sub}_speed`));
-    bind(`#${sub}_inc`, 0, rest_speed >= 1);
-    bind(`#${sub}_inc`, 1, eval(`${sub}_speed`) >= 1);
-    bind(`#${sub}_inc`, 2, rest_speed >= 10);
-    bind(`#${sub}_inc`, 3, eval(`${sub}_speed`) >= 10);
+    $($(`#${sub}_inc td`)[1]).text(eval(`${sub}Speed`));
+    bind(`#${sub}_inc`, 0, restSpeed >= 1);
+    bind(`#${sub}_inc`, 1, eval(`${sub}Speed`) >= 1);
+    bind(`#${sub}_inc`, 2, restSpeed >= 10);
+    bind(`#${sub}_inc`, 3, eval(`${sub}Speed`) >= 10);
   }
 
   // 出发准备栏
@@ -282,14 +292,14 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
 }
 
 function prepareDataRows() {
-  $('.math_value').on('mouseover', 
-      () => { onMouseBox(`数学能力: +${math_speed}/10s`); });
-  $('.phys_value').on('mouseover', 
-      () => { onMouseBox(`物理能力: +${phys_speed}/10s`); });
-  $('.chem_value').on('mouseover',
-      () => { onMouseBox(`化学能力: +${chem_speed}/10s`); });
+  $('.mathValue').on('mouseover', 
+      () => { onMouseBox(`数学能力: +${mathSpeed}/10s`); });
+  $('.physValue').on('mouseover', 
+      () => { onMouseBox(`物理能力: +${physSpeed}/10s`); });
+  $('.chemValue').on('mouseover',
+      () => { onMouseBox(`化学能力: +${chemSpeed}/10s`); });
   for (let i of subjects) {
-    $(`.${i}_value`).on('mouseleave', () => { offMouseBox(); });
+    $(`.${i}Value`).on('mouseleave', () => { offMouseBox(); });
   }
 
   for (let weapon of breakableWeapons) {
@@ -322,23 +332,23 @@ function prepareDataRows() {
 function changeInc(subject, index) {  // 学科 id；按钮编号
   switch (index) {
     case 0:  // +1
-      if (rest_speed >= 1) {
-        rest_speed--; eval(`${subject}_speed++`);
+      if (restSpeed >= 1) {
+        restSpeed--; eval(`${subject}Speed++`);
       }
       break;
     case 1:  // -1
-      if (eval(`${subject}_speed`) >= 1) {
-        rest_speed++; eval(`${subject}_speed--`);
+      if (eval(`${subject}Speed`) >= 1) {
+        restSpeed++; eval(`${subject}Speed--`);
       }
       break;
     case 2:  // +10
-      if (rest_speed >= 10) {
-        rest_speed -= 10; eval(`${subject}_speed += 10`);
+      if (restSpeed >= 10) {
+        restSpeed -= 10; eval(`${subject}Speed += 10`);
       }
       break;
     case 3:  // -10
-      if (eval(`${subject}_speed`) >= 10) {
-        rest_speed += 10; eval(`${subject}_speed -= 10`);
+      if (eval(`${subject}Speed`) >= 10) {
+        restSpeed += 10; eval(`${subject}Speed -= 10`);
       }
       break;
   }
@@ -351,7 +361,7 @@ function prepareInc() {
         .on('mousedown', () => { changeInc(subject, i); });
     }
     setInterval(() => {
-      eval(`${subject}_value += ${subject}_speed`);
+      eval(`${subject}Value += ${subject}Speed`);
       updateValue();
     }, 10000);
   }
@@ -420,6 +430,25 @@ function setOff() {
   $('#tab_dorm, #tab_thesis').css('color', 'grey');
   nowCampus = 'middle';
   nowX = initX; nowY = initY;
+
+  let show = {};
+  for (let item of items) {
+    if (backpack[item] !== 0 && backpack[item] !== undefined) {
+      $(`#${item}_left`).css('display', 'table-row');
+      $(`#use_${item}`).css('display', 'inherit');
+      show[item] = true;
+    }
+  }
+  if (show.sword === undefined && show.gun === undefined) {
+    $($(`.combat_row`)[1]).css('height', 'auto');
+  }
+  if (show.rpg === undefined && show.laser === undefined) {
+    $($(`.combat_row`)[2]).css('height', 'auto');
+  }
+  if (show.medicine === undefined) {
+    $($(`.combat_row`)[3]).css('height', 'auto');
+  }
+
   discover();
   changeMap(nowCampus);
   updateBackpack();
@@ -428,26 +457,36 @@ function home() {
   $('#campus #campus_prepare_wrapper, #campus #data_wrapper')
     .css('display', 'block');
   $('#campus #campus_map, #backpack_wrapper').css('display', 'none');
+  $('#campus_event, #combat').css('display', 'none');
   $('#tab_dorm, #tab_thesis').css('color', 'black');
-  backpack.senseOfDirection = 0;
-  velocity = 1;
   nowCampus = undefined;
+  for (let item of breakableWeapons) {
+    if (backpack[item] !== undefined) {
+      eval(`${item}s.push(${backpack[item]})`);
+      eval(`${item}s.sort(sortCmp)`);
+    }
+  }
+  for (let item of items) {
+    if (breakableWeapons.indexOf(item) !== -1) { continue; }
+    eval(`${item}s++`);
+  }
+  backpack = JSON.parse(JSON.stringify(initBackpack));
   updateDom();
 }
 function preparePrepare() {
-  adjustPrepareItem('sense_of_direction', 'math_value', 'senseOfDirection');
+  adjustPrepareItem('sense_of_direction', 'mathValue', 'senseOfDirection');
   for (let item of ['bullet', 'cannonball', 'arrow', 'medicine']) {
     adjustPrepareItem(`${item}_taken`, `${item}s`, item);
   }
   $($('#velocity i')[0]).on('mousedown', () => {
-    if (math_value >= 50 && velocity <= 399) {
-      math_value -= 50; velocity++;
+    if (mathValue >= 50 && velocity <= 399) {
+      mathValue -= 50; velocity++;
     }
     updateDom();
   });
   $($('#velocity i')[1]).on('mousedown', () => {
     if (velocity >= 2) {
-      velocity--; math_value += 50;
+      velocity--; mathValue += 50;
     }
     updateDom();
   });
@@ -507,44 +546,44 @@ function changeMap(name) {
 function buyWeapon(weapon) {
   switch (weapon) {
     case 'sword':
-      if (phys_value < 50) { message('phys low'); break; }
-      phys_value -= 50;
+      if (physValue < 50) { message('phys low'); break; }
+      physValue -= 50;
       swords.push(10);
       message('buy sword');
       break;
     case 'gun':
-      if (phys_value < 100) { message('phys low'); break; }
-      phys_value -= 100;
+      if (physValue < 100) { message('phys low'); break; }
+      physValue -= 100;
       guns.push(50);
       message('buy gun');
       break;
     case 'bullet':
       if (!learntPowder) { message('!learnt powder'); break; }
-      if (chem_value < 2) { message('chem low'); break; }
-      chem_value -= 2;
+      if (chemValue < 2) { message('chem low'); break; }
+      chemValue -= 2;
       bullets++;
       message('buy bullet');
       break;
     case 'rpg':
-      if (math_value < 100) { message('math low'); break; }
-      if (phys_value < 200) { message('phys low'); break; }
-      math_value -= 100;
-      phys_value -= 200;
+      if (mathValue < 100) { message('math low'); break; }
+      if (physValue < 200) { message('phys low'); break; }
+      mathValue -= 100;
+      physValue -= 200;
       rpgs.push(50);
       message('buy rpg');
       break;
     case 'cannonball':
       if (!learntDynamite) { message('!learnt dynamite'); break; }
-      if (chem_value < 5) { message('chem low'); break; }
-      chem_value -= 5;
+      if (chemValue < 5) { message('chem low'); break; }
+      chemValue -= 5;
       cannonballs++;
       message('buy cannonball');
       break;
     case 'laser':
-      if (math_value < 250) { message('math low'); break; }
-      if (phys_value < 500) { message('phys low'); break; }
-      math_value -= 250;
-      phys_value -= 500;
+      if (mathValue < 250) { message('math low'); break; }
+      if (physValue < 500) { message('phys low'); break; }
+      mathValue -= 250;
+      physValue -= 500;
       lasers.push(100);
       message('buy laser');
       break;
@@ -555,18 +594,18 @@ function studyWeapon(weapon) {
   switch (weapon) {
     case 'powder':
       if (learntPowder) { break; }
-      if (math_value < 100) { message('math low'); break; }
-      if (chem_value < 200) { message('chem low'); break; }
-      math_value -= 100;
-      chem_value -= 200;
+      if (mathValue < 100) { message('math low'); break; }
+      if (chemValue < 200) { message('chem low'); break; }
+      mathValue -= 100;
+      chemValue -= 200;
       learntPowder = true;
       break;
     case 'dynamite':
       if (learntDynamite) { break; }
-      if (math_value < 250) { message('math low'); break; }
-      if (chem_value < 500) { message('chem low'); break; }
-      math_value -= 250;
-      chem_value -= 500;
+      if (mathValue < 250) { message('math low'); break; }
+      if (chemValue < 500) { message('chem low'); break; }
+      mathValue -= 250;
+      chemValue -= 500;
       learntDynamite = true;
       break;
   }
@@ -672,8 +711,103 @@ function discover() {
   }
 }
 
+function campusEvent(type) {
+  switch (type) {
+    case 'pick_chem':
+      $('#campus_event_title').text('拾起化学材料');
+      log('地上有一根废弃的试管。');
+      let delta = Math.ceil(Math.random() * 51) + 49;
+      $('#campus_event_content')
+        .text(`化学能力得到提高。\n获得：\n化学能力 x${delta}`)
+        .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
+      chemValue += delta;
+      $('#campus_event').css('display', 'inherit');
+      break;
+  }
+}
+
+function updateCooldown(selector, percentage, seconds) {
+  percentage -= 1 / seconds;
+  $(`${selector} .cooldown`).css('width', `${percentage}%`);
+  if (Math.abs(percentage) < 1e-5 || $('#combat').css('display') === 'none') {
+    let item = selector.substring(5);
+    if (items.indexOf(item) === -1 || backpack[item] >= 1) {
+      $(selector).removeClass('disabled');
+    }
+    return;
+  }
+  setTimeout(() => updateCooldown(selector, percentage, seconds), 10);
+}
+// 除非你知道你在做什么，否则不要传给 selector 形如 [5字符]+[items 内字符串] 的形式
+function startCooldown(selector, seconds) {
+  $(selector).addClass('disabled');
+  updateCooldown(selector, 100, seconds);
+}
+
+function prepareCombat() {
+  for (let item of breakableWeapons) {
+    $(`#use_${item}`).on('mousedown', () => {
+      if ($(`#use_${item}`).hasClass('disabled')) { return; }
+      let info = attackInfo[item];
+      if (backpack[item] === undefined || 
+          (info.cost !== undefined && backpack[info.cost] === 0)) {
+        $(`#use_${item}`).addClass('disabled');
+        return;
+      }
+      foeHp = Math.max(0, foeHp - info.damage);
+      if (info.cost !== undefined) { backpack[info.cost]--; }
+      backpack[item]--;
+      updateBackpack();
+      if (backpack[item] === 0) { backpack[item] = undefined; }
+      $(`#combat_my_${item}`).css('display', 'inline');
+      // TODO: combat 结束后要关闭下面这个。
+      setTimeout(() => $(`#combat_my_${item}`).addClass('my_moving_attack'), 1);
+      // 这里有可能 501ms 之后已经是另一颗子弹了（另一个战斗页面）
+      setTimeout(
+        () => $(`#combat_my_${item}`).css('display', 'none')
+                                     .removeClass('my_moving_attack')
+      , 501);
+      startCooldown(`#use_${item}`, info.interval);
+    });
+  };
+  $('#use_fist').on('mousedown', () => {
+    if ($('#use_fist').hasClass('disabled')) { return; }
+    let info = attackInfo.fist;
+    foeHp = Math.max(0, foeHp - info.damage);
+    $('#combat_my_fist').css('display', 'inline');
+    // TODO: combat 结束后要关闭下面这个。
+    setTimeout(() => $('#combat_my_fist').addClass('my_moving_attack'), 1);
+    // 这里有可能 501ms 之后已经是另一颗子弹了（另一个战斗页面）
+    setTimeout(
+      () => $('#combat_my_fist').css('display', 'none')
+                                .removeClass('my_moving_attack')
+    , 501);
+    startCooldown('#use_fist', info.interval);
+  });
+  $('#use_medicine').on('mousedown', () => {
+    if ($('#use_medicine').hasClass('disabled')) { return; }
+    if (backpack.medicine === 0) {
+      $('#use_medicine').addClass('disabled');
+      return;
+    }
+    hp = Math.min(maxHp, hp + 50);
+    backpack.medicine--;
+    updateBackpack();
+    startCooldown('#use_medicine', 3);
+  });
+}
+
+function combat(type) {
+  $('#combat').css('display', 'inherit');
+  let info = combatInfo[type];
+  log(info.log);
+  $('#combat_title').text(info.name);
+}
+
 function moveMe(e) {
   if (nowCampus === undefined) { return; }
+  if ($('#campus_event').css('display') !== 'none') { return; }
+  if ($('#combat').css('display') !== 'none') { return; }
   let moveToCampus = (id, timeStamp, dx) => {
     setTimeout(() => {
       if (lastMoveTimeStamp === timeStamp) {
@@ -684,7 +818,7 @@ function moveMe(e) {
       }
     }, 1000);
   };
-  let minInterval = 50 / velocity;
+  let minInterval = 500 / velocity;
   switch (e.originalEvent.key) {
     case 'ArrowLeft':
       if (nowY == 0) {
@@ -751,6 +885,15 @@ function moveMe(e) {
   }
   updateBackpack();
   changeMap(nowCampus);
+  if (nowCampus === 'middle' && Math.hypot(nowX - initX, nowY - initY) < 10) {
+    return;
+  }
+  if (Math.random() < 0.1) {
+    let index = Math.floor(Math.random() * (nowCampus === 'middle' ? 2 : 4));
+    combat(['boxer', 'archer', 'swordsman', 'druggist'][index]);
+  } else {
+    if (Math.random() < 0.05) { campusEvent('pick_chem'); }
+  }
 }
 function moveTab(e) {
   if (nowCampus !== undefined) { return; }
@@ -772,6 +915,7 @@ function main() {
   prepareInc();
   prepareWeapon();
   preparePrepare();  // 准备“出发前的准备”
+  prepareCombat();
   $(document).on('keydown', (e) => moveMe(e));
   $(document).on('keyup', (e) => moveTab(e));
   prepareEvent();
@@ -782,5 +926,10 @@ function main() {
   }
 
   changeTab('campus');
-  // setOff();
+  $('#campus_event_button').on('mousedown', () => {
+    $('#campus_event').css('display', 'none');
+    confirmCallback();
+  });
+  setOff();
+  combat('archer');
 }
