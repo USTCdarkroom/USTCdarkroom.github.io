@@ -55,7 +55,8 @@ header #stage {
   width: 220px;
 }
 
-#data_wrapper, #backpack_wrapper {
+#data_wrapper,
+#backpack_wrapper {
   width: 200px;
 }
 
@@ -137,12 +138,14 @@ table#adjust td.subject,
   color: grey;
 }
 
-#data, #backpack {
+#data,
+#backpack {
   border-style: solid;
   padding: 10px;
 }
 
-#data>table, #backpack>table {
+#data>table,
+#backpack>table {
   width: 100%;
 }
 
@@ -263,7 +266,10 @@ footer {
   margin-right: 30px;
 }
 
-#backpack_wrapper { display: none; }
+#backpack_wrapper {
+  display: none;
+}
+
 #campus_map {
   display: none;
   color: grey;
@@ -279,7 +285,46 @@ footer {
   color: black;
 }
 
-#campus_event, #combat {
+#teachers_wrapper {
+  width: 350px;
+}
+
+#math_teacher_wrapper,
+#phys_teacher_wrapper,
+#chem_teacher_wrapper {
+  border: solid;
+  width: 300px;
+  height: 90px;
+  margin-bottom: 20px;
+  display: none;
+}
+
+#math_teacher,
+#phys_teacher,
+#chem_teacher {
+  padding-left: 10px;
+  margin: 10px;
+}
+
+.thesis_choicebox {
+  border-style: solid;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  text-align: center;
+  margin-top: 5px;
+  margin-left: 20px;
+  float: left;
+  display: none;
+}
+
+.thesis_choicebox:hover {
+  text-decoration: underline;
+}
+
+#campus_event,
+#combat {
   border-style: solid;
   display: none;
   top: 120px;
@@ -288,9 +333,12 @@ footer {
   z-index: 99;
   background-color: white;
 }
-#campus_event_title, #combat_title {
+
+#campus_event_title,
+#combat_title {
   font-weight: bold;
 }
+
 #campus_event_button {
   width: 55px;
   padding: 3px;
@@ -300,26 +348,36 @@ footer {
 #combat, #campus_event {
   width: 200px;
 }
-#combat_me_dodge, #combat_foe_dodge {
+
+#combat_me_dodge,
+#combat_foe_dodge {
   color: white;
   transition-property: color;
   transition-duration: 0.2s;
 }
-#combat_foe_hp, #combat_foe_dodge, #combat_foe {
+
+#combat_foe_hp,
+#combat_foe_dodge,
+#combat_foe {
   float: right;
 }
-.combat_my_attack, #combat_foe_attack {
+
+.combat_my_attack,
+#combat_foe_attack {
   position: absolute;
   display: none;
   transition-property: left;
   transition-duration: 0.5s;
 }
+
 .combat_my_attack {
   left: 20px;
 }
+
 #combat_foe_attack {
   left: calc(100% - 25px);
 }
+
 .my_moving_attack {
   display: inline;
   left: calc(100% - 20px);
@@ -328,12 +386,16 @@ footer {
   display: inline;
   left: 15px;
 }
-#combat_me_dodge.dodging, #combat_foe_dodge.dodging {
+
+#combat_me_dodge.dodging,
+#combat_foe_dodge.dodging {
   color: black;
 }
+
 .combat_row {
   height: 44px;
 }
+
 .cooldown_box {
   position: absolute;
   left: 5px;
@@ -344,23 +406,29 @@ footer {
   margin: 5px;
   text-align: center;
 }
+
 #use_fist.cooldown_box {
   display: inherit;
 }
+
 .cooldown_box.right {
   right: 5px;
   left: auto;
 }
+
 .cooldown_box:hover {
   text-decoration: underline;
 }
+
 .cooldown_box.disabled {
   border-color: lightgrey;
   color: grey;
 }
+
 .cooldown_box.disabled:hover {
   text-decoration: none;
 }
+
 .cooldown {
   overflow: hidden;
   height: 100%;

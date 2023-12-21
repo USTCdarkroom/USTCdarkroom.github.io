@@ -64,7 +64,14 @@ let nowX = initX, nowY = initY;  // 向下为 x 轴正方向，向右为 y 轴�
 let nowCampus;
 let hp = maxHp, foeHp, foe, dodgeProb = 0, building;
 
-let confirmCallback = () => {};  // campus_event_button 的回调函数
+let confirmCallback = () => { };  // campus_event_button 的回调函数
+
+// 导师
+let showTeacher = [false, false, false];
+let joinGroup = [false, false, false];
+let writeThesis = [false, false, false];
+let checkingCnt = [0, 0, 0];
+let nowDefense = false;
 
 function debugSaveFile() { return; 
   mathValue = physValue = chemValue = 10000;
@@ -81,6 +88,13 @@ function debugSaveFile() { return;
   backpack.senseOfDirection = 300;
   backpack.bow = backpack.gun = backpack.sword = backpack.rpg = 
       10;
+  showTeacher = [true, true, true];
+  joinGroup = [false, true, true];
+  writeThesis = [false, true, false];
+  checkingCnt = [0, 3, 0];
+  backpack.senseOfDirection = 1000;
+  backpack.bow = backpack.gun = backpack.sword = backpack.rpg =
+    backpack.laser = 10;
   backpack.bullet = backpack.medicine = backpack.cannonball = 70;
   backpack.arrow = 70;
   velocity = 20;
@@ -151,6 +165,9 @@ function message(expr) {
       log('被药剂师击败。'); break;
     case 'death of swordsman':
       log('被剑客击败。'); break;
+    case 'join group': log('加入了一个课题组'); break;
+    case 'write thesis': log('撰写了一篇论文'); break;
+    case 'check thesis': log('对论文进行了一次推敲'); break;
     default: log('${' + expr + '}'); break;
   }
 }
@@ -317,6 +334,17 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
 
   // 出发准备栏
   updatePrepare();
+
+  // 导师
+  for (let idx = 0; idx < 3; idx++) {
+    if (showTeacher[idx]) $("#" + subjects[idx] + "_teacher_wrapper").css("display", "block");
+    if (showTeacher[idx] && !joinGroup[idx]) $("#" + subjects[idx] + "_joingroup").css("display", "block");
+    else $("#" + subjects[idx] + "_joingroup").css("display", "none");
+    if (joinGroup[idx] && !writeThesis[idx]) $("#" + subjects[idx] + "_writethesis").css("display", "block");
+    else $("#" + subjects[idx] + "_writethesis").css("display", "none");
+    if (writeThesis[idx]) $("#" + subjects[idx] + "_checking").css("display", "block");
+    if (checkingCnt[idx] >= 3) $("#" + subjects[idx] + "_defense").css("display", "block");
+  }
 }
 
 function prepareDataRows() {
@@ -650,7 +678,7 @@ function prepareWeapon() {
 function prepareEvent() {
   let prob = 1 / 300;
   let checkEvent = () => {
-    if (nowTab == 'dorm' && !showEvent && Math.random() < prob) {
+    if (nowCampus == undefined && nowDefense == false && !showEvent && Math.random() < prob) {
       currentEvent++;
       let cur = currentEvent;
 
@@ -930,8 +958,8 @@ function prepareCombat() {
     $(`#use_${item}`).on('mousedown', () => {
       if ($(`#use_${item}`).hasClass('disabled')) { return; }
       let info = attackInfo[item];
-      if (backpack[item] === undefined || 
-          (info.cost !== undefined && backpack[info.cost] === 0)) {
+      if (backpack[item] === undefined ||
+        (info.cost !== undefined && backpack[info.cost] === 0)) {
         $(`#use_${item}`).addClass('disabled');
         return;
       }
@@ -1207,6 +1235,49 @@ function moveTab(e) {
     if (nowTab === 'dorm') { changeTab('campus'); }
   }
 }
+function prepareThesis() {
+  for (let idx = 0; idx < 3; idx++) {
+    let subId = subjects[idx];
+
+    $("#" + subId + "_joingroup").on('mousedown', () => {
+      if (joinGroup[idx]) return;
+      joinGroup[idx] = true;
+      message("join group");
+      updateDom();
+    });
+
+    $("#" + subId + "_writethesis").on('mousedown', () => {
+      if (writeThesis[idx]) return;
+      if (eval(subId + "Value < 1000")) { message(subId + ' low'); return; }
+      writeThesis[idx] = true;
+      message("write thesis");
+      eval(subId + "Value -= 1000");
+      updateDom();
+    });
+
+    $("#" + subId + "_checking").on('mousedown', () => {
+      if (eval(subId + "Value < 500")) { message(subId + ' low'); return; }
+      checkingCnt[idx]++;
+      message("check thesis");
+      eval(subId + "Value -= 500");
+      updateDom();
+    });
+
+    $("#" + subId + "_defense").on('mousedown', () => {
+      if (nowDefense) return;
+      startDefense(checkingCnt[idx]);
+    });
+  }
+}
+function startDefense(checkcnt) {
+  nowDefense = true;
+  $(".thesis_main").css("display", "none");
+
+  setTimeout(() => {
+    $(".thesis_main").css("display", "block");
+    nowDefense = false;
+  }, 3000);
+}
 
 function meetMentor() {
   // 生成一个导师，不过需求里没写怎么生成，我也不知道 thesis 怎么调用。
@@ -1220,21 +1291,22 @@ function main() {
   prepareInc();
   prepareWeapon();
   preparePrepare();  // 准备“出发前的准备”
+  prepareEvent();
+  prepareThesis();
   prepareCombat();
   $(document).on('keydown', (e) => moveMe(e));
   $(document).on('keyup', (e) => moveTab(e));
-  prepareEvent();
   for (let tabId of tabIds) {
     $(`#tab_${tabId}`).on('click', () => {
       if (nowCampus === undefined) { changeTab(tabId); }
     });
   }
 
-  changeTab('campus');
-  $('#campus_event_button').on('mousedown', () => {
-    $('#campus_event').css('display', 'none');
-    updateBackpack();
-    confirmCallback();
-  });
-  setOff();
+  // changeTab('campus');
+  // $('#campus_event_button').on('mousedown', () => {
+  //   $('#campus_event').css('display', 'none');
+  //   confirmCallback();
+  // });
+  // setOff();
+  // combat('archer');
 }
