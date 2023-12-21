@@ -1,9 +1,9 @@
 "use strict";
 
 const achieves = [
-  { id: 'avoid_hit', txt: '找到别人打不到的地方。' },
-  { id: 'one_library', txt: '博览群书，六艺皆通。' },
-  { id: 'two_libraries', txt: '古往今来，无所不晓。' },
+  { id: 'avoid_hit', txt: '找到别人打不到的地方。', name: '避实就虚' },
+  { id: 'one_library', txt: '博览群书，六艺皆通。', name: '才高八斗' },
+  { id: 'two_libraries', txt: '古往今来，无所不晓。', name: '学富五车' },
   { id: 'barehand_killer', txt: '空手以敌千军万马', name: '徒手战士' }
 ];
 const events = [
