@@ -55,7 +55,7 @@ header #stage {
   width: 220px;
 }
 
-#data_wrapper {
+#data_wrapper, #backpack_wrapper {
   width: 200px;
 }
 
@@ -137,12 +137,12 @@ table#adjust td.subject,
   color: grey;
 }
 
-#data {
+#data, #backpack {
   border-style: solid;
   padding: 10px;
 }
 
-#data>table {
+#data>table, #backpack>table {
   width: 100%;
 }
 
@@ -183,7 +183,7 @@ td.value {
   display: none;
   position: fixed;
   border-style: solid;
-  top: 5%;
+  top: 25%;
   left: 25%;
   width: 400px;
   height: 120px;
@@ -261,13 +261,14 @@ footer {
   margin-right: 30px;
 }
 
+#backpack_wrapper { display: none; }
 #campus_map {
   display: none;
   color: grey;
-  font-family: monospace;
-  font-size: 13px;
-  letter-spacing: 4.175px;
-  line-height: 13px;
+  font-family: 'Cascadia Code';
+  font-size: 12px;
+  letter-spacing: 4px;
+  line-height: 11px;
 }
 
 .building,
