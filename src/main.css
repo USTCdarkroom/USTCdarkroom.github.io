@@ -260,10 +260,13 @@ footer {
   top: calc(100% - 50px);
 }
 
-#footer_content {
+#footer_content, #github_link {
   display: block;
   float: right;
   margin-right: 30px;
+}
+#github_link a {
+  color: black;
 }
 
 #backpack_wrapper {
@@ -446,4 +449,7 @@ footer {
   width: 80px;
   margin-top: 10px;
   float: right;
+}
+#github_link {
+  text-decoration: underline;
 }

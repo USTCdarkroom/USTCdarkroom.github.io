@@ -22,6 +22,15 @@ const initBackpack = {
   bow: undefined, sword: undefined, gun: undefined, rpg: undefined,
   laser: undefined
 };
+const stageInfo = [
+  {en: 'zero grade', zh: '大零'},
+  {en: 'freshman', zh: '大一'},
+  {en: 'sophomore', zh: '大二'},
+  {en: 'junior', zh: '大三'},
+  {en: 'senior', zh: '大四'},
+  {en: 'fifth grade', zh: '大五'},
+  {en: 'sixth grade', zh: '大六'},
+];
 const maxHp = 100;
 const deathPenalty = 3;
 
@@ -73,7 +82,7 @@ let writeThesis = [false, false, false];
 let checkingCnt = [0, 0, 0];
 let nowDefense = false;
 
-function debugSaveFile() { return; 
+function debugSaveFile() { 
   mathValue = physValue = chemValue = 10000;
   bows = [1, 2, 3, 4];
   swords = [10, 7, 3, 9, 2];
@@ -136,7 +145,7 @@ function message(expr) {
     case '!learnt powder': log('还未掌握火药制造。'); break;
     case '!learnt dynamite': log('还未掌握炸药制造。'); break;
 
-    // Info
+    // Info: 学习新知识
     case 'phys learnt': log('开始学习物理。'); break;
     case 'bow learnt': log('发现了弓箭。'); break;
     case 'chem learnt': log('开始学习化学。'); break;
@@ -145,12 +154,21 @@ function message(expr) {
     case 'medicine learnt': log('发现了治疗药剂。'); break;
     case 'rpg learnt': log('掌握了火炮的制造。'); break;
     case 'laser learnt': log('掌握了光剑的制造。'); break;
+
+    // Info: 制作新物品
     case 'buy sword': log('制作了一把铁剑。'); break;
     case 'buy gun': log('制作了一把步枪。'); break;
     case 'buy bullet': log('制作了一颗子弹。'); break;
     case 'buy rpg': log('制作了一个火炮。'); break;
     case 'buy cannonball': log('制作了一枚炮弹。'); break;
     case 'buy laser': log('制作了一副光剑。'); break;
+    
+    // Info: 进度提示
+    case 'sophomore': log('升入大二。'); break;
+    case 'junior': log('升入大三。'); break;
+    case 'senior': log('升入大四，进入毕业年级。'); break;
+    case 'fifth grade': log('答辩未通过，延毕至大五。'); break;
+    case 'sixth grade': log('答辩未通过，延毕至大六。'); break;
 
     // Info in campus
     case 'senseOfDirection <= 5': log('方向感快用完了。'); break;
@@ -165,6 +183,8 @@ function message(expr) {
       log('被药剂师击败。'); break;
     case 'death of swordsman':
       log('被剑客击败。'); break;
+    
+    // Info in thesis
     case 'join group': log('加入了一个课题组'); break;
     case 'write thesis': log('撰写了一篇论文'); break;
     case 'check thesis': log('对论文进行了一次推敲'); break;
@@ -1106,6 +1126,11 @@ function enterBuilding() {
     message('laser learnt');
     showLaser = true;
   }
+  if (building.type === 'library') {
+    stage++;
+    message(stageInfo[stage].en);
+    $('#stage').text(stageInfo[stage].zh);
+  }
   let str = `${building.name}现在安全了。`, gain;
   switch (building.type) {
     case 'teach':
@@ -1221,8 +1246,15 @@ function moveMe(e) {
   if (Math.random() < 0.1) {
     let index = Math.floor(Math.random() * (nowCampus === 'middle' ? 2 : 4));
     combat(['boxer', 'archer', 'swordsman', 'druggist'][index]);
-  } else {
-    if (Math.random() < 0.05) { campusEvent('pick_chem'); }
+    return;
+  }
+  if (Math.random() < 0.05) {
+    campusEvent('pick_chem');
+    return;
+  }
+  if (Math.random() < 0.01) {
+    campusEvent('meet_mentor');
+    return;
   }
 }
 function moveTab(e) {
@@ -1280,8 +1312,8 @@ function startDefense(checkcnt) {
   }, 3000);
 }
 
-function meetMentor() {
-  // 生成一个导师，不过需求里没写怎么生成，我也不知道 thesis 怎么调用。
+function addMentor() {
+  // 生成一个导师，增加到可用列表里，不过需求里没写怎么生成，我也不知道 thesis 怎么调用。
 }
 
 function main() {
@@ -1302,12 +1334,12 @@ function main() {
       if (nowCampus === undefined) { changeTab(tabId); }
     });
   }
+  $('#campus_event_button').on('mousedown', () => {
+    $('#campus_event').css('display', 'none');
+    confirmCallback();
+  });
 
   // changeTab('campus');
-  // $('#campus_event_button').on('mousedown', () => {
-  //   $('#campus_event').css('display', 'none');
-  //   confirmCallback();
-  // });
   // setOff();
   // combat('archer');
 }
