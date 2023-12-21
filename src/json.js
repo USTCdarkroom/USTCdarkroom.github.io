@@ -30,7 +30,9 @@ const events = [
     opt: [
       {
         txt: "参加", res: () => {
-          mathSpeed++; physSpeed++; chemSpeed++;
+          mathSpeed++; 
+          if (showPhys) { physSpeed++; }
+          if (showChem) { chemSpeed++; }
         }
       }, {
         txt: "不参加", res: () => { }
