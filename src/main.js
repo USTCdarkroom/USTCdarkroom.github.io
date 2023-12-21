@@ -944,18 +944,18 @@ function prepareThesis() {
 
     $("#" + subId + "_writethesis").on('mousedown', () => {
       if (writeThesis[idx]) return;
-      if (eval(subId + "_value < 1000")) { message(subId + ' low'); return; }
+      if (eval(subId + "Value < 1000")) { message(subId + ' low'); return; }
       writeThesis[idx] = true;
       message("write thesis");
-      eval(subId + "_value -= 1000");
+      eval(subId + "Value -= 1000");
       updateDom();
     });
 
     $("#" + subId + "_checking").on('mousedown', () => {
-      if (eval(subId + "_value < 500")) { message(subId + ' low'); return; }
+      if (eval(subId + "Value < 500")) { message(subId + ' low'); return; }
       checkingCnt[idx]++;
       message("check thesis");
-      eval(subId + "_value -= 500");
+      eval(subId + "Value -= 500");
       updateDom();
     });
 
@@ -994,11 +994,11 @@ function main() {
     });
   }
 
-  changeTab('campus');
-  $('#campus_event_button').on('mousedown', () => {
-    $('#campus_event').css('display', 'none');
-    confirmCallback();
-  });
-  setOff();
-  combat('archer');
+  // changeTab('campus');
+  // $('#campus_event_button').on('mousedown', () => {
+  //   $('#campus_event').css('display', 'none');
+  //   confirmCallback();
+  // });
+  // setOff();
+  // combat('archer');
 }
