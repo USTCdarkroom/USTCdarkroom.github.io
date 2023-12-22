@@ -33,9 +33,23 @@ const stageInfo = [
 ];
 const maxHp = 100;
 const deathPenalty = 3;
+const autosaveInterval = 10;
 
 const sortCmp = (a, b) => a - b;
 const randBetween = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+
+// 所有希望刷新后仍然保留的变量
+const autosaveVariables = [
+  'nowTab', 'mathSpeed', 'physSpeed', 'chemSpeed', 'restSpeed',
+  'mathValue', 'physValue', 'chemValue', 'bows', 'swords', 'guns', 'rpgs', 
+  'lasers', 'bullets', 'cannonballs', 'arrows', 'medicines', 'achieved', 
+  'showPhys', 'showChem', 'showBow', 'showRpg', 'showLaser', 'showMedicine', 
+  'learntPowder', 'learntDynamite', 'stage', 'logTexts', 'lastMoveTimeStamp', 
+  'changingCampus', 'showEvent', 'currentEvent', 'currentAchieve', 'velocity', 
+  'backpack', 'nowX', 'nowY', 'nowCampus', 'hp', 'foeHp', 'foe', 
+  'dodgeProb', 'building', 'showTeacher', 'joinGroup', 'writeThesis', 
+  'checkingCnt', 'nowDefense'
+];
 
 let nowTab = 'dorm';
 
@@ -1302,7 +1316,7 @@ function prepareThesis() {
     });
   }
 }
-function startDefense(checkcnt) {
+function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作者怎样的思想感情？（4 分）
   nowDefense = true;
   $(".thesis_main").css("display", "none");
 
@@ -1316,7 +1330,28 @@ function addMentor() {
   // 生成一个导师，增加到可用列表里，不过需求里没写怎么生成，我也不知道 thesis 怎么调用。
 }
 
+function autosave() {
+  for (let varName of autosaveVariables) {
+    Cookies.set(varName, eval(varName));
+  }
+}
+function loadSaveData() {
+  for (let varName of autosaveVariables) {
+    eval(`${varName} = Cookies.getJSON('${varName}')`);
+    if (eval(varName) === 'undefined') {
+      eval(`${varName} = undefined`);
+    }
+  }
+}
+function manuallySave() {
+  if ($('#manually_save').hasClass('saved')) { return; }
+  autosave();
+  $('#manually_save').text('saved!').addClass('saved');
+  setTimeout(() => $('#manually_save').text('save.').removeClass('saved'), 800);
+}
+
 function main() {
+  loadSaveData();   // TODO: 本地这行要注释掉，除非有人知道怎么对本地 html 开 cookies.
   debugSaveFile();
   updateDom();
   setUpMouseBox();
@@ -1338,6 +1373,10 @@ function main() {
     $('#campus_event').css('display', 'none');
     confirmCallback();
   });
+  setInterval(autosave, autosaveInterval * 1000);
+  $('#manually_save').on('mousedown', manuallySave);
+
+  // ======== 上面是必须加载的部分，下面是 debug
 
   // changeTab('campus');
   // setOff();
