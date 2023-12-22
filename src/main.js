@@ -96,7 +96,7 @@ let hp, foeHp, foe, dodgeProb, building;
 // ========= 所有所有希望刷新后仍然保留的变量 结束 ==========
 
 function initVariables() {
-  mathSpeed = physSpeed = chemSpeed = restSpeed = 0;
+  mathSpeed = physSpeed = chemSpeed = 0; restSpeed = 20;
   mathValue = physValue = chemValue = 0;
   bows = []; swords = []; guns = []; rpgs = []; lasers = [];
   bullets = cannonballs = arrows = medicines = 0;
@@ -117,7 +117,7 @@ function initVariables() {
   hp = maxHp; dodgeProb = 0;
 }
 
-let confirmCallback = () => { };  // campus_event_button 的回调函数
+let confirmCallback = () => {};  // campus_event_button 的回调函数
 
 // 导师
 let showTeacher = [false, false, false];
@@ -228,7 +228,13 @@ function message(expr) {
       log('被药剂师击败。'); break;
     case 'death of swordsman':
       log('被剑客击败。'); break;
-
+    case 'meet math mentor': 
+      log('遇见数学导师。'); break;
+    case 'meet phys mentor': 
+      log('遇见物理导师。'); break;
+    case 'meet chem mentor': 
+      log('遇见化学导师。'); break;
+    
     // Info in thesis
     case 'join group': log('加入了一个课题组'); break;
     case 'write thesis': log('撰写了一篇论文'); break;
@@ -869,7 +875,17 @@ function campusEvent(type) {
       chemValue += gain;
       $('#campus_event').css('display', 'inherit');
       break;
-
+    case 'meet_mentor':
+      if (stage < 4) { 
+        stage = 4;
+        message('senior');
+        $('#stage').text(stageInfo[4].zh);
+      }
+      let subject = ['math', 'phys', 'chem'][randBetween(0, 2)];
+      addMentor(subject);
+      message(`meet ${subject} mentor`);
+      break;
+    
     case 'kill_boxer':
       $('#campus_event_title').text('击败拳击手');
       log('拳击手倒下了。');
@@ -983,10 +999,11 @@ function updateCombatCooldown(selector, percentage, seconds) {
   }
   setTimeout(() => updateCombatCooldown(selector, percentage, seconds), 10);
 }
-function updateCooldown(selector, percentage, seconds, callback) {
+let updateCooldownCrit = true;
+function updateCooldown(selector, percentage, seconds, callback, useCrit) {
   percentage -= 1 / seconds;
   $(`${selector} .cooldown`).css('width', `${percentage}%`);
-  if (Math.abs(percentage) < 1e-5) {
+  if (Math.abs(percentage) < 1e-5 || (useCrit && !updateCooldownCrit)) {
     $(`${selector} .cooldown`).css('width', '0%');
     $(selector).removeClass('disabled');
     callback();
@@ -998,7 +1015,8 @@ function startCombatCooldown(selector, seconds) {
   $(selector).addClass('disabled');
   updateCombatCooldown(selector, 100, seconds);
 }
-function startCooldown(selector, seconds, callback = () => { }) {
+function startCooldown(selector, seconds, callback = () => {}, 
+                       useCrit = false) {
   $(selector).addClass('disabled');
   updateCooldown(selector, 100, seconds, callback);
 }
@@ -1013,7 +1031,13 @@ function endCombat() {
   $('#use_medicine .cooldown').css('width', '0%');
   $('#combat_foe_attack').removeClass('foe_moving_attack');
   $('#combat').css('display', 'none');
-  if (hp === 0) { dead(foe); return; }
+  if (hp === 0) { 
+    if (!showPhys) {
+      showPhys = true;
+      message('phys learnt')
+    }
+    dead(foe); return;
+  }
   confirmCallback = combatCallback;
   campusEvent(`kill_${foe}`);
 }
@@ -1297,7 +1321,7 @@ function moveMe(e) {
     campusEvent('pick_chem');
     return;
   }
-  if (Math.random() < 0.01) {
+  if (Math.random() < 0.01 && stage >= 3) {
     campusEvent('meet_mentor');
     return;
   }
@@ -1405,8 +1429,8 @@ function manuallySave() {
 }
 
 function main() {
-  loadSaveData();   // TODO: 本地这行要注释掉，除非有人知道怎么对本地 html 开 cookies.
-  // initVariables();
+  //loadSaveData();   // TODO: 本地这行要注释掉，除非有人知道怎么对本地 html 开 cookies.
+  //initVariables();
   debugSaveFile();
   updateDom();
   setUpMouseBox();
