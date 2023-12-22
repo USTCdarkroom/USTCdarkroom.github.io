@@ -491,3 +491,16 @@ footer {
 #defensebox.disabled:hover {
   text-decoration: underline;
 }
+
+.thesis_choicebox {
+  width: 80px !important;  /* TODO: 优先级大师！ */
+  height: 21px;
+}
+#thesis .checking_box {
+  position: relative;
+  left: 0;
+}
+.thesis_row {
+  display: block;
+  height: 40px;
+}
