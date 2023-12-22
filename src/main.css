@@ -247,8 +247,7 @@ td.value {
 #phys_inc,
 #chem_inc,
 #campus_adjust tr:not(#sense_of_direction):not(#velocity),
-#backpack tr:not(#sense_of_direction_left),
-#weapon {
+#backpack tr:not(#sense_of_direction_left) {
   display: none;
 }
 
