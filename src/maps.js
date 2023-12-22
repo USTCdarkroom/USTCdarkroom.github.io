@@ -129,7 +129,7 @@ let buildings = [
     campus: 'east', x: 12, y: 44, name: '第二教学楼',
     entered: false, finished: false, type: 'teach'
   },
-  {
+  { 
     campus: 'east', x: 16, y: 44, name: '少年班学院',
     entered: false, finished: false, type: 'teach'
   },
