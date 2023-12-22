@@ -1183,7 +1183,7 @@ function enterBuilding() {
     }
     return;
   }
-  showCampusEventBox(building.name, '这个地方灯光阴暗，使人望而却步。', () => {
+  showCampusEventBox(building.name, '从门口望去，这里走廊深邃看不见尽头。', () => {
     let index = Math.floor(Math.random() * (nowCampus === 'middle' ? 2 : 4));
     combat(['boxer', 'archer', 'swordsman', 'druggist'][index], () => {
       building.finished = true;

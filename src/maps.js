@@ -26,7 +26,7 @@ const middleCampus = [
   '################################################################'
 ];
 
-let middleVisited = new Array(22).fill().map(x => new Array(64).fill(false));
+let middleVisited = new Array(22).fill().map(x => new Array(64).fill(true));
 
 // 上 14 下 16, 64x34，有微调
 const westCampus = [
@@ -66,7 +66,7 @@ const westCampus = [
   '################################################################',
 ];
 
-let westVisited = new Array(34).fill().map(x => new Array(64).fill(false));
+let westVisited = new Array(34).fill().map(x => new Array(64).fill(true));
 
 // 上 7 下 27, 64x38
 const eastCampus = [
@@ -110,7 +110,7 @@ const eastCampus = [
   '################################################################',
 ];
 
-let eastVisited = new Array(38).fill().map(x => new Array(64).fill(false));
+let eastVisited = new Array(38).fill().map(x => new Array(64).fill(true));
 
 let buildings = [
   {
@@ -129,7 +129,7 @@ let buildings = [
     campus: 'east', x: 12, y: 44, name: '第二教学楼',
     entered: false, finished: false, type: 'teach'
   },
-  {
+  { 
     campus: 'east', x: 16, y: 44, name: '少年班学院',
     entered: false, finished: false, type: 'teach'
   },
