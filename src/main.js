@@ -117,7 +117,7 @@ function initVariables() {
   hp = maxHp; dodgeProb = 0;
 }
 
-let confirmCallback = () => {};  // campus_event_button 的回调函数
+let confirmCallback = () => { };  // campus_event_button 的回调函数
 
 // 导师
 let showTeacher = [false, false, false];
@@ -128,7 +128,7 @@ let nowDefense = false;
 let passDefense = false; // 理应在 autosavevariables 中
 
 function debugSaveFile() {
-  mathValue = physValue = chemValue = 10000;
+  mathValue = physValue = chemValue = 90000;
   bows = [1, 2, 3, 4];
   swords = [10, 7, 3, 9, 2];
   guns = [12, 12, 2, 2, 20];
@@ -228,17 +228,18 @@ function message(expr) {
       log('被药剂师击败。'); break;
     case 'death of swordsman':
       log('被剑客击败。'); break;
-    case 'meet math mentor': 
+    case 'meet math mentor':
       log('遇见数学导师。'); break;
-    case 'meet phys mentor': 
+    case 'meet phys mentor':
       log('遇见物理导师。'); break;
-    case 'meet chem mentor': 
+    case 'meet chem mentor':
       log('遇见化学导师。'); break;
-    
+
     // Info in thesis
     case 'join group': log('加入了一个课题组'); break;
     case 'write thesis': log('撰写了一篇论文'); break;
     case 'check thesis': log('对论文进行了一次推敲'); break;
+    case 'fail defense': log('答辩没有通过'); break;
     default: log('${' + expr + '}'); break;
   }
 }
@@ -876,7 +877,7 @@ function campusEvent(type) {
       $('#campus_event').css('display', 'inherit');
       break;
     case 'meet_mentor':
-      if (stage < 4) { 
+      if (stage < 4) {
         stage = 4;
         message('senior');
         $('#stage').text(stageInfo[4].zh);
@@ -885,7 +886,7 @@ function campusEvent(type) {
       addMentor(subject);
       message(`meet ${subject} mentor`);
       break;
-    
+
     case 'kill_boxer':
       $('#campus_event_title').text('击败拳击手');
       log('拳击手倒下了。');
@@ -1015,8 +1016,8 @@ function startCombatCooldown(selector, seconds) {
   $(selector).addClass('disabled');
   updateCombatCooldown(selector, 100, seconds);
 }
-function startCooldown(selector, seconds, callback = () => {}, 
-                       useCrit = false) {
+function startCooldown(selector, seconds, callback = () => { },
+  useCrit = false) {
   $(selector).addClass('disabled');
   updateCooldown(selector, 100, seconds, callback);
 }
@@ -1031,7 +1032,7 @@ function endCombat() {
   $('#use_medicine .cooldown').css('width', '0%');
   $('#combat_foe_attack').removeClass('foe_moving_attack');
   $('#combat').css('display', 'none');
-  if (hp === 0) { 
+  if (hp === 0) {
     if (!showPhys) {
       showPhys = true;
       message('phys learnt')
@@ -1369,12 +1370,23 @@ function prepareThesis() {
 
     $("#" + subId + "_defense").on('mousedown', () => {
       if (nowDefense) return;
+      if (eval(subId + "Value < 3000")) { message(subId + ' low'); return; }
+      eval(subId + "Value -= 3000");
       startDefense(checkingCnt[idx]);
     });
   }
 }
 
 function victory() { // 胜利界面
+  $('#defensebox').css("display", "none");
+  nowDefense = false;
+}
+
+function failDefense() {
+  $('#defensebox').css("display", "none");
+  $(".thesis_main").css("display", "block");
+  nowDefense = false;
+  message("fail defense");
 }
 
 function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作者怎样的思想感情？（4 分）
@@ -1382,7 +1394,7 @@ function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作�
   $(".thesis_main").css("display", "none");
 
 
-  let period = 200 + 50 * checkcnt;
+  let period = 300 + 100 * checkcnt;
   let periodnum = 30;
 
   let clickednum = 0;
@@ -1396,7 +1408,30 @@ function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作�
   }
 
   changePos();
-  startCooldown('#defensebox', 1);
+  startCooldown('#defensebox', 1, () => { }, true);
+  $('#defensebox').on('mousedown', () => {
+    if (!nowDefense) return;
+    clickednum++;
+
+    updateCooldownCrit = false;
+    $('#defensebox').css("display", "none");
+    if (clickednum == periodnum) { victory(); return; }
+
+    let currentClick = clickednum;
+
+    setTimeout(() => {
+      if (!nowDefense) return;
+      changePos();
+      updateCooldownCrit = true;
+      startCooldown('#defensebox', period / 1000, () => { }, true);
+    }, 50);
+
+    setTimeout(() => {
+      if (!nowDefense) return;
+      if (currentClick == clickednum) failDefense();
+    }, period + 50);
+  });
+
 
   // setTimeout(() => {
   //   $(".thesis_main").css("display", "block");
@@ -1405,7 +1440,9 @@ function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作�
 }
 
 function addMentor(subId) {
-  // 生成一个导师，增加到可用列表里，不过需求里没写怎么生成，我也不知道 thesis 怎么调用。
+  let subindex = subjects.indexOf(subId);
+  showTeacher[subindex] = true;
+  updateDom();
 }
 
 function autosave() {
@@ -1430,7 +1467,7 @@ function manuallySave() {
 
 function main() {
   //loadSaveData();   // TODO: 本地这行要注释掉，除非有人知道怎么对本地 html 开 cookies.
-  //initVariables();
+  initVariables();
   debugSaveFile();
   updateDom();
   setUpMouseBox();
