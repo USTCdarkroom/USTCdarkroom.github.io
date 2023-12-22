@@ -38,7 +38,7 @@ const autosaveInterval = 10;
 const sortCmp = (a, b) => a - b;
 const randBetween = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 
-// 所有希望刷新后仍然保留的变量
+// “所有希望刷新后仍然保留的变量”名列表
 const autosaveVariables = [
   'nowTab', 'mathSpeed', 'physSpeed', 'chemSpeed', 'restSpeed',
   'mathValue', 'physValue', 'chemValue', 'bows', 'swords', 'guns', 'rpgs', 
@@ -50,42 +50,72 @@ const autosaveVariables = [
   'dodgeProb', 'building', 'showTeacher', 'joinGroup', 'writeThesis', 
   'checkingCnt', 'nowDefense'
 ];
-
+// 任何可能修改 Cookies 格式（譬如增加变量）的操作都应该增加下述计数器，
+// 以提示用户的浏览器初始化新变量。
+const autosaveFormatVersion = 'v0.1';  
 let nowTab = 'dorm';
 
+// ========= 所有所有希望刷新后仍然保留的变量 开始 ==========
+// !!!!!!!!! 这里任何的初始化操作都会被覆盖 !!!!!!!!!!!!!!!!
+// !!!!!!!!! 请使用 initVariables 执行初始化，除非初始值为 undefined !!!!!!!!!!!!!!
+
 // 能力值及增速 
-let mathSpeed = 0, physSpeed = 0, chemSpeed = 0, restSpeed = 20;
-let mathValue = 0, physValue = 0, chemValue = 0;
+let mathSpeed, physSpeed, chemSpeed, restSpeed;
+let mathValue, physValue, chemValue;
 
 // 道具库
-let bows = [], swords = [], guns = [], rpgs = [], lasers = [];  // 仅存工具耐久度
-let bullets = 0, cannonballs = 0, arrows = 0, medicines = 0;
+let bows, swords, guns, rpgs, lasers;  // 仅存工具耐久度
+let bullets, cannonballs, arrows, medicines;
 
 // 进度
-let achieved = [];  // 仅存成就 id
-let showPhys = false, showChem = false;
-let showBow = false, showRpg = false, showLaser = false, showMedicine = false;
-let learntPowder = false, learntDynamite = false;
-let stage = 1;  // 年级数，到一个图书馆大二，两个则大三，碰见教授则大四，答辩延毕则大五，
+let achieved;  // 仅存成就 id
+let showPhys, showChem;
+let showBow, showRpg, showLaser, showMedicine;
+let learntPowder, learntDynamite;
+let stage;  // 年级数，到一个图书馆大二，两个则大三，碰见教授则大四，答辩延毕则大五，
 // 再延毕大六，再延毕辍学（游戏失败）。
 
-let logTexts = [];  // { id: [string], text: [string] }
-let lastMoveTimeStamp = 0, changingCampus = false;
+let logTexts;  // { id: [string], text: [string] }
+let lastMoveTimeStamp, changingCampus;
 
 // 随机事件
-let showEvent = false;
-let currentEvent = 0;
+let showEvent;
+let currentEvent;
 
 // 成就
-let currentAchieve = 0;
+let currentAchieve;
 
 // 背包
-let velocity = 1;
-let backpack = JSON.parse(JSON.stringify(initBackpack));
+let velocity;
+let backpack;
 
-let nowX = initX, nowY = initY;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是初始坐标
+let nowX, nowY;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是初始坐标
 let nowCampus;
-let hp = maxHp, foeHp, foe, dodgeProb = 0, building;
+let hp, foeHp, foe, dodgeProb, building;
+
+// ========= 所有所有希望刷新后仍然保留的变量 结束 ==========
+
+function initVariables() {
+  mathSpeed = physSpeed = chemSpeed = restSpeed = 0;
+  mathValue = physValue = chemValue = 0;
+  bows = []; swords = []; guns = []; rpgs = []; lasers = [];
+  bullets = cannonballs = arrows = medicines = 0;
+  achieved = [];
+  showPhys = showChem = false;
+  showBow = showRpg = showLaser = showMedicine = false;
+  learntPowder = learntDynamite = false;
+  stage = 1;
+  logTexts = [];
+  lastMoveTimeStamp = 0;
+  changingCampus = false;
+  showEvent = false;
+  currentEvent = 0;
+  currentAchieve = 0;
+  velocity = 1;
+  backpack = JSON.parse(JSON.stringify(initBackpack));
+  nowX = initX; nowY = initY;
+  hp = maxHp; dodgeProb = 0;
+}
 
 let confirmCallback = () => { };  // campus_event_button 的回调函数
 
