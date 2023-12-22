@@ -23,13 +23,13 @@ const initBackpack = {
   laser: undefined
 };
 const stageInfo = [
-  {en: 'zero grade', zh: '大零'},
-  {en: 'freshman', zh: '大一'},
-  {en: 'sophomore', zh: '大二'},
-  {en: 'junior', zh: '大三'},
-  {en: 'senior', zh: '大四'},
-  {en: 'fifth grade', zh: '大五'},
-  {en: 'sixth grade', zh: '大六'},
+  { en: 'zero grade', zh: '大零' },
+  { en: 'freshman', zh: '大一' },
+  { en: 'sophomore', zh: '大二' },
+  { en: 'junior', zh: '大三' },
+  { en: 'senior', zh: '大四' },
+  { en: 'fifth grade', zh: '大五' },
+  { en: 'sixth grade', zh: '大六' },
 ];
 const maxHp = 100;
 const deathPenalty = 3;
@@ -41,18 +41,18 @@ const randBetween = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 // “所有希望刷新后仍然保留的变量”名列表
 const autosaveVariables = [
   'nowTab', 'mathSpeed', 'physSpeed', 'chemSpeed', 'restSpeed',
-  'mathValue', 'physValue', 'chemValue', 'bows', 'swords', 'guns', 'rpgs', 
-  'lasers', 'bullets', 'cannonballs', 'arrows', 'medicines', 'achieved', 
-  'showPhys', 'showChem', 'showBow', 'showRpg', 'showLaser', 'showMedicine', 
-  'learntPowder', 'learntDynamite', 'stage', 'logTexts', 'lastMoveTimeStamp', 
-  'changingCampus', 'showEvent', 'currentEvent', 'currentAchieve', 'velocity', 
-  'backpack', 'nowX', 'nowY', 'nowCampus', 'hp', 'foeHp', 'foe', 
-  'dodgeProb', 'building', 'showTeacher', 'joinGroup', 'writeThesis', 
+  'mathValue', 'physValue', 'chemValue', 'bows', 'swords', 'guns', 'rpgs',
+  'lasers', 'bullets', 'cannonballs', 'arrows', 'medicines', 'achieved',
+  'showPhys', 'showChem', 'showBow', 'showRpg', 'showLaser', 'showMedicine',
+  'learntPowder', 'learntDynamite', 'stage', 'logTexts', 'lastMoveTimeStamp',
+  'changingCampus', 'showEvent', 'currentEvent', 'currentAchieve', 'velocity',
+  'backpack', 'nowX', 'nowY', 'nowCampus', 'hp', 'foeHp', 'foe',
+  'dodgeProb', 'building', 'showTeacher', 'joinGroup', 'writeThesis',
   'checkingCnt', 'nowDefense'
 ];
 // 任何可能修改 Cookies 格式（譬如增加变量）的操作都应该增加下述计数器，
 // 以提示用户的浏览器初始化新变量。
-const autosaveFormatVersion = 'v0.1';  
+const autosaveFormatVersion = 'v0.1';
 let nowTab = 'dorm';
 
 // ========= 所有所有希望刷新后仍然保留的变量 开始 ==========
@@ -139,8 +139,8 @@ function debugSaveFile() {
   learntDynamite = learntPowder = true;
 
   backpack.senseOfDirection = 300;
-  backpack.bow = backpack.gun = backpack.sword = backpack.rpg = 
-      10;
+  backpack.bow = backpack.gun = backpack.sword = backpack.rpg =
+    10;
   showTeacher = [true, true, true];
   joinGroup = [false, true, true];
   writeThesis = [false, true, false];
@@ -206,7 +206,7 @@ function message(expr) {
     case 'buy rpg': log('制作了一个火炮。'); break;
     case 'buy cannonball': log('制作了一枚炮弹。'); break;
     case 'buy laser': log('制作了一副光剑。'); break;
-    
+
     // Info: 进度提示
     case 'sophomore': log('升入大二。'); break;
     case 'junior': log('升入大三。'); break;
@@ -283,8 +283,8 @@ function updatePrepare() {  // 更新出发前准备栏。因为很常用所以�
   $($('#velocity td')[1]).text(velocity);
   bind('#velocity', 0, mathValue >= 50 && velocity <= 399);
   bind('#velocity', 1, velocity >= 2);
-  if (backpack.senseOfDirection >= 1 && 
-      $('#set_off .cooldown').css('width') === '0px') {
+  if (backpack.senseOfDirection >= 1 &&
+    $('#set_off .cooldown').css('width') === '0px') {
     $('#set_off').removeClass('disabled');
   } else {
     $('#set_off').addClass('disabled');
@@ -373,7 +373,7 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
   var show = (weapon) => {
     $('.' + weapon).css('display', 'inherit');
     $(`.${weapon}_count, #${weapon}_taken, #${weapon}_left`)
-        .css('display', 'table-row');
+      .css('display', 'table-row');
   };
   if (showBow) { show('bow'); show('arrow'); }
   if (showPhys) { show('sword'); }
@@ -418,12 +418,12 @@ function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变
 }
 
 function prepareDataRows() {
-  $('.math_value').on('mouseover', 
-      () => { onMouseBox(`数学能力: +${mathSpeed}/10s`); });
-  $('.phys_value').on('mouseover', 
-      () => { onMouseBox(`物理能力: +${physSpeed}/10s`); });
+  $('.math_value').on('mouseover',
+    () => { onMouseBox(`数学能力: +${mathSpeed}/10s`); });
+  $('.phys_value').on('mouseover',
+    () => { onMouseBox(`物理能力: +${physSpeed}/10s`); });
   $('.chem_value').on('mouseover',
-      () => { onMouseBox(`化学能力: +${chemSpeed}/10s`); });
+    () => { onMouseBox(`化学能力: +${chemSpeed}/10s`); });
   for (let i of subjects) {
     $(`.${i}_value`).on('mouseleave', () => { offMouseBox(); });
   }
@@ -748,8 +748,8 @@ function prepareWeapon() {
 function prepareEvent() {
   let prob = 1 / 300;
   let checkEvent = () => {
-    if (nowCampus == undefined && nowDefense == false && !showEvent && 
-        Math.random() < prob) {
+    if (nowCampus == undefined && nowDefense == false && !showEvent &&
+      Math.random() < prob) {
       currentEvent++;
       let cur = currentEvent;
 
@@ -841,11 +841,11 @@ function discover() {
   }
 }
 
-function showCampusEventBox(title, content, callback = () => {}) {
+function showCampusEventBox(title, content, callback = () => { }) {
   $('#campus_event_title').text(title);
   $('#campus_event_content')
-      .text(content)
-      .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
+    .text(content)
+    .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
   $('#campus_event').css('display', 'inherit');
   confirmCallback = callback;
 }
@@ -918,7 +918,7 @@ function campusEvent(type) {
         }
         $('#campus_event_content')
           .text(`${physStr}，同时获得了一套弓箭。\n\n获得：\n物理能力 x${gain}` +
-                `\n弓 ${bowGained * 100 / bowMax}%\n箭 x${arrowGained}`
+            `\n弓 ${bowGained * 100 / bowMax}%\n箭 x${arrowGained}`
           )
           .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
       } else {
@@ -956,7 +956,7 @@ function campusEvent(type) {
         backpack.medicine++;
         $('#campus_event_content')
           .text(`${physStr}，同时获得了一枚药剂。\n\n获得：\n物理能力 x${gain}` +
-                `\n药剂 x1`)
+            `\n药剂 x1`)
           .html($('#campus_event_content').html().replace(/\n/g, '<br/>'));
       } else {
         $('#campus_event_content')
@@ -966,7 +966,7 @@ function campusEvent(type) {
       physValue += gain;
       $('#campus_event').css('display', 'inherit');
       break;
-    
+
     case 'drink_coffee':
       showCampusEventBox('喝咖啡', '喝了杯咖啡。');
       break;
@@ -1075,8 +1075,8 @@ function prepareCombat() {
       // 这里有可能 501ms 之后已经是另一颗子弹了（另一个战斗页面）
       setTimeout(
         () => $(`#combat_my_${item}`).css('display', 'none')
-                                     .removeClass('my_moving_attack')
-      , 501);
+          .removeClass('my_moving_attack')
+        , 501);
       startCombatCooldown(`#use_${item}`, info.interval);
     });
   };
@@ -1103,8 +1103,8 @@ function prepareCombat() {
     // 这里有可能 501ms 之后已经是另一颗子弹了（另一个战斗页面）
     setTimeout(
       () => $('#combat_my_fist').css('display', 'none')
-                                .removeClass('my_moving_attack')
-    , 501);
+        .removeClass('my_moving_attack')
+      , 501);
     startCombatCooldown('#use_fist', info.interval);
   });
   $('#use_medicine').on('mousedown', () => {
@@ -1122,8 +1122,8 @@ function prepareCombat() {
 
 function foeAttack() {
   if ($('#combat').css('display') === 'none') { return; }
-  let damage = randBetween(combatInfo[foe].minDamage, 
-                           combatInfo[foe].maxDamage);
+  let damage = randBetween(combatInfo[foe].minDamage,
+    combatInfo[foe].maxDamage);
   if (Math.random() < dodgeProb) {
 
   }
@@ -1134,13 +1134,13 @@ function foeAttack() {
   setTimeout(() => $('#combat_foe_attack').addClass('foe_moving_attack'), 1);
   setTimeout(
     () => $('#combat_foe_attack').css('display', 'none')
-                                 .removeClass('foe_moving_attack')
-  , 501);
+      .removeClass('foe_moving_attack')
+    , 501);
   setTimeout(foeAttack, combatInfo[foe].interval * 1000);
 }
 
-let combatCallback = () => {};
-function combat(type, callback = () => {}) {
+let combatCallback = () => { };
+function combat(type, callback = () => { }) {
   combatCallback = callback;
   $('#combat').css('display', 'inherit');
   let info = combatInfo[type];
@@ -1179,46 +1179,46 @@ function enterBuilding() {
     return;
   }
   showCampusEventBox(building.name, '一句话形容这个地方陌生、使人退却。', () => {
-  let index = Math.floor(Math.random() * (nowCampus === 'middle' ? 2 : 4));
-  combat(['boxer', 'archer', 'swordsman', 'druggist'][index], () => {
-  building.finished = true;
-  if (building.type === 'chem' && !showChem) {
-    message('chem learnt');
-    showChem = true;
-  }
-  if (building.type === 'chem' && !showRpg) {
-    message('rpg learnt');
-    showRpg = true;
-  }
-  if (building.type === 'phys' && !showLaser) {
-    message('laser learnt');
-    showLaser = true;
-  }
-  if (building.type === 'library') {
-    stage++;
-    message(stageInfo[stage].en);
-    $('#stage').text(stageInfo[stage].zh);
-  }
-  let str = `${building.name}现在安全了。`, gain;
-  switch (building.type) {
-    case 'teach':
-      gain = randBetween(50, 100);
-      mathValue += gain;
-      str += `\n\n获得：\n数学能力值 x${gain}`;
-      break;
-    case 'phys':
-      gain = randBetween(50, 100);
-      physValue += gain;
-      str += `\n\n获得：\n物理能力值 x${gain}`;
-      break;
-    case 'chem':
-      gain = randBetween(50, 100);
-      chemValue += gain;
-      str += `\n\n获得：\n化学能力值 x${gain}`;
-      break;
-  }
-  showCampusEventBox(building.name, str);
-  });
+    let index = Math.floor(Math.random() * (nowCampus === 'middle' ? 2 : 4));
+    combat(['boxer', 'archer', 'swordsman', 'druggist'][index], () => {
+      building.finished = true;
+      if (building.type === 'chem' && !showChem) {
+        message('chem learnt');
+        showChem = true;
+      }
+      if (building.type === 'chem' && !showRpg) {
+        message('rpg learnt');
+        showRpg = true;
+      }
+      if (building.type === 'phys' && !showLaser) {
+        message('laser learnt');
+        showLaser = true;
+      }
+      if (building.type === 'library') {
+        stage++;
+        message(stageInfo[stage].en);
+        $('#stage').text(stageInfo[stage].zh);
+      }
+      let str = `${building.name}现在安全了。`, gain;
+      switch (building.type) {
+        case 'teach':
+          gain = randBetween(50, 100);
+          mathValue += gain;
+          str += `\n\n获得：\n数学能力值 x${gain}`;
+          break;
+        case 'phys':
+          gain = randBetween(50, 100);
+          physValue += gain;
+          str += `\n\n获得：\n物理能力值 x${gain}`;
+          break;
+        case 'chem':
+          gain = randBetween(50, 100);
+          chemValue += gain;
+          str += `\n\n获得：\n化学能力值 x${gain}`;
+          break;
+      }
+      showCampusEventBox(building.name, str);
+    });
   });
 }
 
@@ -1302,8 +1302,8 @@ function moveMe(e) {
   updateBackpack();
   changeMap(nowCampus);
   for (building of buildings) {
-    if (building.campus === nowCampus && building.x === nowX && 
-        building.y === nowY) {
+    if (building.campus === nowCampus && building.x === nowX &&
+      building.y === nowY) {
       enterBuilding(); return;
     }
   }
@@ -1357,10 +1357,12 @@ function prepareThesis() {
     });
 
     $("#" + subId + "_checking").on('mousedown', () => {
+      if ($("#" + subId + "_checking_cooldown").css("width") != "0px") { return; }
       if (eval(subId + "Value < 500")) { message(subId + ' low'); return; }
       checkingCnt[idx]++;
       message("check thesis");
       eval(subId + "Value -= 500");
+      startCooldown("#" + subId + "_checking", 60);
       updateDom();
     });
 
@@ -1373,14 +1375,13 @@ function prepareThesis() {
 function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作者怎样的思想感情？（4 分）
   nowDefense = true;
   $(".thesis_main").css("display", "none");
-
   setTimeout(() => {
     $(".thesis_main").css("display", "block");
     nowDefense = false;
   }, 3000);
 }
 
-function addMentor() {
+function addMentor(subId) {
   // 生成一个导师，增加到可用列表里，不过需求里没写怎么生成，我也不知道 thesis 怎么调用。
 }
 
@@ -1406,7 +1407,7 @@ function manuallySave() {
 
 function main() {
   //loadSaveData();   // TODO: 本地这行要注释掉，除非有人知道怎么对本地 html 开 cookies.
-  initVariables();
+  //initVariables();
   debugSaveFile();
   updateDom();
   setUpMouseBox();
@@ -1421,7 +1422,7 @@ function main() {
   $(document).on('keyup', (e) => moveTab(e));
   for (let tabId of tabIds) {
     $(`#tab_${tabId}`).on('click', () => {
-      if (nowCampus === undefined) { changeTab(tabId); }
+      if (nowCampus === undefined && nowDefense == false) { changeTab(tabId); }
     });
   }
   $('#campus_event_button').on('mousedown', () => {
