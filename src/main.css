@@ -260,24 +260,31 @@ footer {
   top: calc(100% - 50px);
 }
 
-#footer_content, #github_link, #manually_save {
+#footer_content,
+#github_link,
+#manually_save {
   display: block;
   float: right;
   margin-right: 30px;
 }
+
 #manually_save {
   text-decoration: underline;
 }
+
 #manually_save:hover {
   cursor: pointer;
 }
+
 #manually_save.saved {
   text-decoration: none;
   cursor: default;
 }
+
 #github_link {
   text-decoration: underline;
 }
+
 #github_link a {
   color: black;
 }
@@ -322,21 +329,26 @@ footer {
   margin: 10px;
 }
 
-.thesis_choicebox {
+#math_defense,
+#math_checking,
+#math_writethesis,
+#math_joingroup,
+#phys_defense,
+#phys_checking,
+#phys_writethesis,
+#phys_joingroup,
+#chem_defense,
+#chem_checking,
+#chem_writethesis,
+#chem_joingroup {
+  position: initial;
   border-style: solid;
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  width: auto;
   text-align: center;
   margin-top: 5px;
   margin-left: 20px;
   float: left;
   display: none;
-}
-
-.thesis_choicebox:hover {
-  text-decoration: underline;
 }
 
 #campus_event,
@@ -361,7 +373,8 @@ footer {
   float: right;
 }
 
-#combat, #campus_event {
+#combat,
+#campus_event {
   width: 200px;
 }
 
@@ -398,6 +411,7 @@ footer {
   display: inline;
   left: calc(100% - 20px);
 }
+
 #combat_foe_attack.foe_moving_attack {
   display: inline;
   left: 15px;
