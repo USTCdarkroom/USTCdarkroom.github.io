@@ -477,3 +477,18 @@ footer {
   margin-top: 10px;
   float: right;
 }
+
+#defensebox {
+  position: absolute;
+  width: auto;
+  display: none;
+}
+
+#defensebox.disabled {
+  border-color: black;
+  color: black;
+}
+
+#defensebox.disabled:hover {
+  text-decoration: underline;
+}

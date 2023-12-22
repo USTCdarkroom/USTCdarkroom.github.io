@@ -125,6 +125,7 @@ let joinGroup = [false, false, false];
 let writeThesis = [false, false, false];
 let checkingCnt = [0, 0, 0];
 let nowDefense = false;
+let passDefense = false; // 理应在 autosavevariables 中
 
 function debugSaveFile() {
   mathValue = physValue = chemValue = 10000;
@@ -1348,13 +1349,35 @@ function prepareThesis() {
     });
   }
 }
+
+function victory() { // 胜利界面
+}
+
 function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作者怎样的思想感情？（4 分）
   nowDefense = true;
   $(".thesis_main").css("display", "none");
-  setTimeout(() => {
-    $(".thesis_main").css("display", "block");
-    nowDefense = false;
-  }, 3000);
+
+
+  let period = 200 + 50 * checkcnt;
+  let periodnum = 30;
+
+  let clickednum = 0;
+  let changePos = () => {
+    if (!nowDefense) return;
+    let xPos = Math.floor(Math.random() * 50) + 10;
+    let yPos = Math.floor(Math.random() * 50) + 10;
+    $('#defensebox').css("top", `${xPos}%`);
+    $('#defensebox').css("left", `${yPos}%`);
+    $('#defensebox').css("display", "block");
+  }
+
+  changePos();
+  startCooldown('#defensebox', 1);
+
+  // setTimeout(() => {
+  //   $(".thesis_main").css("display", "block");
+  //   nowDefense = false;
+  // }, 3000);
 }
 
 function addMentor(subId) {
