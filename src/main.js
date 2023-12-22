@@ -151,7 +151,8 @@ function debugSaveFile() {
   backpack.senseOfDirection = 1000;
   backpack.bow = backpack.gun = backpack.sword = backpack.rpg =
     backpack.laser = 10;
-  backpack.bullet = backpack.medicine = backpack.cannonball = 70;
+  backpack.sword = 2;
+  backpack.bullet = backpack.medicine = backpack.cannonball = 200;
   backpack.arrow = 70;
   velocity = 20;
   showLaser = false;
@@ -1316,16 +1317,16 @@ function moveMe(e) {
   if (nowCampus === 'middle' && Math.hypot(nowX - initX, nowY - initY) < 10) {
     return;
   }
-  if (Math.random() < 0.1) {
+  if (Math.random() < 0.04) {
     let index = Math.floor(Math.random() * (nowCampus === 'middle' ? 2 : 4));
     combat(['boxer', 'archer', 'swordsman', 'druggist'][index]);
     return;
   }
-  if (Math.random() < 0.05) {
+  if (Math.random() < 0.02) {
     campusEvent('pick_chem');
     return;
   }
-  if (Math.random() < 0.01 && stage >= 3) {
+  if (Math.random() < 0.005 && stage >= 3) {
     campusEvent('meet_mentor');
     return;
   }
