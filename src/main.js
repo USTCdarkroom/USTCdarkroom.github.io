@@ -93,6 +93,16 @@ let nowX, nowY;  // 向下为 x 轴正方向，向右为 y 轴正方向，这是
 let nowCampus;
 let hp, foeHp, foe, dodgeProb, building;
 
+// 导师
+let showTeacher = [false, false, false];
+let joinGroup = [false, false, false];
+let writeThesis = [false, false, false];
+let checkingCnt = [0, 0, 0];
+let nowDefense = false;
+let passDefense = false; // 理应在 autosavevariables 中
+let defenseSubject;
+let gameEnd = false;
+
 // ========= 所有所有希望刷新后仍然保留的变量 结束 ==========
 
 function initVariables() {
@@ -119,14 +129,6 @@ function initVariables() {
 
 let confirmCallback = () => { };  // campus_event_button 的回调函数
 
-// 导师
-let showTeacher = [false, false, false];
-let joinGroup = [false, false, false];
-let writeThesis = [false, false, false];
-let checkingCnt = [0, 0, 0];
-let nowDefense = false;
-let passDefense = false; // 理应在 autosavevariables 中
-
 function debugSaveFile() {
   mathValue = physValue = chemValue = 90000;
   bows = [1, 2, 3, 4];
@@ -145,7 +147,7 @@ function debugSaveFile() {
   showTeacher = [true, true, true];
   joinGroup = [false, true, true];
   writeThesis = [false, true, false];
-  checkingCnt = [0, 3, 0];
+  checkingCnt = [0, 10, 0];
   backpack.senseOfDirection = 1000;
   backpack.bow = backpack.gun = backpack.sword = backpack.rpg =
     backpack.laser = 10;
@@ -747,11 +749,12 @@ function prepareWeapon() {
     $(`#${weapon}`).on('mousedown', () => { buyWeapon(weapon); });
   }
 }
+
 function prepareEvent() {
   let prob = 1 / 300;
   let checkEvent = () => {
     if (nowCampus == undefined && nowDefense == false && !showEvent &&
-      Math.random() < prob) {
+      !gameEnd && Math.random() < prob) {
       currentEvent++;
       let cur = currentEvent;
 
@@ -1180,7 +1183,7 @@ function enterBuilding() {
     }
     return;
   }
-  showCampusEventBox(building.name, '一句话形容这个地方陌生、使人退却。', () => {
+  showCampusEventBox(building.name, '这个地方灯光阴暗，使人望而却步。', () => {
     let index = Math.floor(Math.random() * (nowCampus === 'middle' ? 2 : 4));
     combat(['boxer', 'archer', 'swordsman', 'druggist'][index], () => {
       building.finished = true;
@@ -1372,6 +1375,7 @@ function prepareThesis() {
       if (nowDefense) return;
       if (eval(subId + "Value < 3000")) { message(subId + ' low'); return; }
       eval(subId + "Value -= 3000");
+      defenseSubject = subId;
       startDefense(checkingCnt[idx]);
     });
   }
@@ -1380,12 +1384,22 @@ function prepareThesis() {
 function victory() { // 胜利界面
   $('#defensebox').css("display", "none");
   nowDefense = false;
+  gameEnd = true;
+  if (defenseSubject == 'math') $($(".victory_school td")[1]).text('数学系');
+  if (defenseSubject == 'phys') $($(".victory_school td")[1]).text('物理系');
+  if (defenseSubject == 'chem') $($(".victory_school td")[1]).text('化学系');
+  mathSpeed = 0;
+  physSpeed = 0;
+  chemSpeed = 0;
+  $(".victory_grade .value").text(stageInfo[stage].zh);
+  $(".victory").css("display", "block");
 }
 
 function failDefense() {
   $('#defensebox').css("display", "none");
   $(".thesis_main").css("display", "block");
   nowDefense = false;
+  defenseSubject = undefined;
   message("fail defense");
 }
 
@@ -1395,7 +1409,7 @@ function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作�
 
 
   let period = 300 + 100 * checkcnt;
-  let periodnum = 30;
+  let periodnum = 5;
 
   let clickednum = 0;
   let changePos = () => {
@@ -1424,12 +1438,12 @@ function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作�
       changePos();
       updateCooldownCrit = true;
       startCooldown('#defensebox', period / 1000, () => { }, true);
-    }, 50);
+    }, 30);
 
     setTimeout(() => {
       if (!nowDefense) return;
       if (currentClick == clickednum) failDefense();
-    }, period + 50);
+    }, period + 30);
   });
 
 
@@ -1482,7 +1496,7 @@ function main() {
   $(document).on('keyup', (e) => moveTab(e));
   for (let tabId of tabIds) {
     $(`#tab_${tabId}`).on('click', () => {
-      if (nowCampus === undefined && nowDefense == false) { changeTab(tabId); }
+      if (nowCampus === undefined && nowDefense == false && !gameEnd) { changeTab(tabId); }
     });
   }
   $('#campus_event_button').on('mousedown', () => {

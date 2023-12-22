@@ -139,7 +139,8 @@ table#adjust td.subject,
 }
 
 #data,
-#backpack {
+#backpack,
+#victory_data {
   border-style: solid;
   padding: 10px;
 }
@@ -490,4 +491,8 @@ footer {
 
 #defensebox.disabled:hover {
   text-decoration: underline;
+}
+
+#victory_data table {
+  width: 175px;
 }
