@@ -9,10 +9,12 @@ const achieves = [
 const events = [
   {
     event: "数理基础得到进一步巩固",
-    opt: [{ txt: "确认", res: () => {
-      mathValue += 100;
-      if (showPhys) { physValue += 100; }
-    } }]
+    opt: [{
+      txt: "确认", res: () => {
+        mathValue += 100;
+        if (showPhys) { physValue += 100; }
+      }
+    }]
   }, {
     event: "美丽邂逅开始了报名",
     opt: [
@@ -33,7 +35,7 @@ const events = [
     opt: [
       {
         txt: "参加", res: () => {
-          mathSpeed++; 
+          mathSpeed++;
           if (showPhys) { physSpeed++; }
           if (showChem) { chemSpeed++; }
         }
@@ -47,7 +49,7 @@ const attackInfo = {
   fist: {
     char: 'o',
     interval: 1,
-    damage: 1,
+    damage: 3,
   },
   bow: {
     char: '>',
