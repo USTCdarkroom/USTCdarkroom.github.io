@@ -152,9 +152,9 @@ function debugSaveFile() {
   backpack.bow = backpack.gun = backpack.sword = backpack.rpg =
     10;
   showTeacher = [true, true, true];
-  joinGroup = [false, true, true];
-  writeThesis = [false, true, true];
-  checkingCnt = [0, 10, 4];
+  joinGroup = [true, true, true];
+  writeThesis = [true, true, true];
+  checkingCnt = [3, 6, 10];
   backpack.senseOfDirection = 1000;
   backpack.bow = backpack.gun = backpack.sword = backpack.rpg =
     backpack.laser = 10;
@@ -1230,6 +1230,7 @@ function enterBuilding() {
     let index = Math.floor(Math.random() * (nowCampus === 'middle' ? 2 : 4));
     combat(['boxer', 'archer', 'swordsman', 'druggist'][index], () => {
       building.finished = true;
+      restSpeed += 5;
       if (building.type === 'chem' && !showChem) {
         message('chem learnt');
         showChem = true;
@@ -1454,8 +1455,7 @@ function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作�
   nowDefense = true;
   $(".thesis_main").css("display", "none");
 
-
-  let period = 200 + 100 * checkcnt;
+  let period = 100 * checkcnt;
   let periodnum = 30;
 
   let clickednum = 0;
