@@ -69,6 +69,7 @@ let bullets, cannonballs, arrows, medicines;
 
 // 进度
 let achieved;  // 仅存成就 id
+let advanced; // 仅存进度 id
 let showPhys, showChem;
 let showBow, showRpg, showLaser, showMedicine;
 let learntPowder, learntDynamite;
@@ -85,6 +86,9 @@ let currentEvent;
 // 成就
 let currentAchieve;
 
+// 进度
+let currentAdvance;
+
 // 背包
 let velocity;
 let backpack;
@@ -99,6 +103,7 @@ let joinGroup = [false, false, false];
 let writeThesis = [false, false, false];
 let checkingCnt = [0, 0, 0];
 let nowDefense = false;
+let DefenseCnt = 0; // 理应在 autosavevariables 中
 let passDefense = false; // 理应在 autosavevariables 中
 let defenseSubject;
 let gameEnd = false;
@@ -111,6 +116,7 @@ function initVariables() {
   bows = []; swords = []; guns = []; rpgs = []; lasers = [];
   bullets = cannonballs = arrows = medicines = 0;
   achieved = [];
+  advanced = [];
   showPhys = showChem = false;
   showBow = showRpg = showLaser = showMedicine = false;
   learntPowder = learntDynamite = false;
@@ -136,7 +142,8 @@ function debugSaveFile() {
   guns = [12, 12, 2, 2, 20];
   lasers = [7, 7, 17, 19, 30];
   rpgs = [3, 7, 10, 20, 20];
-  // achieved = ['avoid_hit', 'one_library', 'two_libraries'];
+  // achieved = ['avoid_hit'];
+  advanced = ['show chem', 'show phys'];
   arrows = cannonballs = bullets = medicines = 30;
   showBow = showPhys = showChem = showRpg = showLaser = showMedicine = true;
   learntDynamite = learntPowder = true;
@@ -146,8 +153,8 @@ function debugSaveFile() {
     10;
   showTeacher = [true, true, true];
   joinGroup = [false, true, true];
-  writeThesis = [false, true, false];
-  checkingCnt = [0, 10, 0];
+  writeThesis = [false, true, true];
+  checkingCnt = [0, 10, 4];
   backpack.senseOfDirection = 1000;
   backpack.bow = backpack.gun = backpack.sword = backpack.rpg =
     backpack.laser = 10;
@@ -358,8 +365,10 @@ function updateBackpack() {  // 更新背包栏和战斗栏。
 function updateDom() {  // 更新 DOM 元素使之符合最新变量。更新变量后需调用。
   updateValue();
 
-  if (showPhys) { $('#phys_inc, .phys_value').css('display', 'table-row'); }
-  if (showChem) { $('#chem_inc, .chem_value').css('display', 'table-row'); }
+  makeAdvancement("start");
+
+  if (showPhys) { $('#phys_inc, .phys_value').css('display', 'table-row'); makeAdvancement("show phys"); }
+  if (showChem) { $('#chem_inc, .chem_value').css('display', 'table-row'); makeAdvancement("show chem"); }
 
   // 成就
   let achieveIds = [];
@@ -555,6 +564,7 @@ function adjustPrepareWeapon(weapon) {
 }
 
 function setOff() {
+  makeAdvancement("set off");
   if ($('#set_off').hasClass('disabled')) { return; }
   $('#campus #campus_prepare_wrapper').css('display', 'none');
   $('#campus #data_wrapper').css('display', 'none');
@@ -802,6 +812,7 @@ function makeAchievement(achieveId) {
   if (achieveIndex == -1) return;
   currentAchieve = achieveIndex;
 
+  $(`#reach_achievement`).text(`达成了成就`);
   $(`#achievement_text`).text(achieves[achieveIndex].name);
   $(`#achievement_text`).css("display", "block");
   $(`#reach_achievement`).css("display", "block");
@@ -815,6 +826,36 @@ function makeAchievement(achieveId) {
     }
   }, remainTime);
   achieved.push(achieveId);
+  updateDom();
+}
+
+function makeAdvancement(advanceId) {
+  if (advanced.indexOf(advanceId) != -1) return;
+  let remainTime = 3000;
+
+  let advanceIndex = -1;
+  for (let i = 0; i < advances.length; i++)
+    if (advances[i].id == advanceId)
+      advanceIndex = i;
+
+  // console.log(advanceIndex);
+  if (advanceIndex == -1) return;
+  currentAdvance = advanceIndex;
+
+  $(`#reach_achievement`).text(`完成了进度`);
+  $(`#achievement_text`).text(advances[advanceIndex].name);
+  $(`#achievement_text`).css("display", "block");
+  $(`#reach_achievement`).css("display", "block");
+  $(`#achievement_box`).css("display", "block");
+
+  setTimeout(() => {
+    if (currentAdvance == advanceIndex) {
+      $(`#achievement_text`).css("display", "none");
+      $(`#reach_achievement`).css("display", "none");
+      $(`#achievement_box`).css("display", "none");
+    }
+  }, remainTime);
+  advanced.push(advanceId);
   updateDom();
 }
 
@@ -1044,6 +1085,7 @@ function endCombat() {
     dead(foe); return;
   }
   confirmCallback = combatCallback;
+  makeAdvancement("monster killer");
   campusEvent(`kill_${foe}`);
 }
 
@@ -1239,6 +1281,7 @@ function moveMe(e) {
         nowY = 63 - nowY;
         changingCampus = false;
         changeMap(id);
+        makeAdvancement("switch campus");
       }
     }, 1000);
   };
@@ -1383,6 +1426,7 @@ function prepareThesis() {
 }
 
 function victory() { // 胜利界面
+  makeAdvancement("graduate");
   $('#defensebox').css("display", "none");
   nowDefense = false;
   gameEnd = true;
@@ -1405,16 +1449,18 @@ function failDefense() {
 }
 
 function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作者怎样的思想感情？（4 分）
+  DefenseCnt++;
+  let DefenseCur = DefenseCnt;
   nowDefense = true;
   $(".thesis_main").css("display", "none");
 
 
-  let period = 300 + 100 * checkcnt;
-  let periodnum = 5;
+  let period = 200 + 100 * checkcnt;
+  let periodnum = 30;
 
   let clickednum = 0;
   let changePos = () => {
-    if (!nowDefense) return;
+    if (!nowDefense || DefenseCur != DefenseCnt) return;
     let xPos = Math.floor(Math.random() * 50) + 10;
     let yPos = Math.floor(Math.random() * 50) + 10;
     $('#defensebox').css("top", `${xPos}%`);
@@ -1424,8 +1470,14 @@ function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作�
 
   changePos();
   startCooldown('#defensebox', 1, () => { }, true);
+
+  setTimeout(() => {
+    if (!nowDefense || DefenseCur != DefenseCnt) return;
+    if (clickednum == 0) failDefense();
+  }, 1000);
+
   $('#defensebox').on('mousedown', () => {
-    if (!nowDefense) return;
+    if (!nowDefense || DefenseCur != DefenseCnt) return;
     clickednum++;
 
     updateCooldownCrit = false;
@@ -1435,16 +1487,16 @@ function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作�
     let currentClick = clickednum;
 
     setTimeout(() => {
-      if (!nowDefense) return;
+      if (!nowDefense || DefenseCur != DefenseCnt) return;
       changePos();
       updateCooldownCrit = true;
       startCooldown('#defensebox', period / 1000, () => { }, true);
-    }, 30);
+    }, 150);
 
     setTimeout(() => {
-      if (!nowDefense) return;
+      if (!nowDefense || DefenseCur != DefenseCnt) return;
       if (currentClick == clickednum) failDefense();
-    }, period + 30);
+    }, period + 150);
   });
 
 
@@ -1455,6 +1507,7 @@ function startDefense(checkcnt) {  // defense 一词好在哪里？表达了作�
 }
 
 function addMentor(subId) {
+  makeAdvancement("meet mentor");
   let subindex = subjects.indexOf(subId);
   showTeacher[subindex] = true;
   updateDom();

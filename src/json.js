@@ -2,9 +2,17 @@
 
 const achieves = [
   { id: 'avoid_hit', txt: '找到别人打不到的地方。', name: '避实就虚' },
-  { id: 'one_library', txt: '博览群书，六艺皆通。', name: '才高八斗' },
-  { id: 'two_libraries', txt: '古往今来，无所不晓。', name: '学富五车' },
-  { id: 'barehand_killer', txt: '空手以敌千军万马', name: '徒手战士' }
+  { id: 'fist_master', txt: '空手以敌千军万马', name: '徒手战士' }
+];
+const advances = [
+  { id: 'start', name: '新的开始' },
+  { id: 'show phys', name: '初识物理' },
+  { id: 'show chem', name: '初识化学' },
+  { id: 'graduate', name: '顺利毕业' },
+  { id: 'set off', name: '探索时光' },
+  { id: 'switch campus', name: '校区穿梭' },
+  { id: 'monster killer', name: '怪物猎人' },
+  { id: 'meet mentor', name: '邂逅恩师' }
 ];
 const events = [
   {
@@ -49,18 +57,18 @@ const attackInfo = {
   fist: {
     char: 'o',
     interval: 1,
-    damage: 3,
+    damage: 4,
   },
   bow: {
     char: '>',
     interval: 2,
-    damage: 10,
+    damage: 12,
     cost: 'arrow',
   },
   sword: {
     char: 'x',
     interval: 1,
-    damage: 5,
+    damage: 6,
   },
   gun: {
     char: '-',
