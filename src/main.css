@@ -209,6 +209,7 @@ td.value {
 
 #achievement_box {
   position: fixed;
+  background-color: white;
   right: 0%;
   top: 5%;
   border-top: solid;

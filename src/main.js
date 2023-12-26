@@ -1366,7 +1366,7 @@ function moveMe(e) {
     combat(['boxer', 'archer', 'swordsman', 'druggist'][index]);
     return;
   }
-  if (Math.random() < 0.02) {
+  if (Math.random() < 0.01) {
     campusEvent('pick_chem');
     return;
   }
