@@ -503,7 +503,7 @@ function prepareInc() {
     setInterval(() => {
       eval(`${subject}Value += ${subject}Speed`);
       updateValue();
-    }, 1000);  // TODO: 改回来。 10s.
+    }, 10000);
   }
 }
 
