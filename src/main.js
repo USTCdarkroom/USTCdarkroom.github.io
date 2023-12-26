@@ -152,9 +152,9 @@ function debugSaveFile() {
   backpack.bow = backpack.gun = backpack.sword = backpack.rpg =
     10;
   showTeacher = [true, true, true];
-  joinGroup = [true, true, true];
-  writeThesis = [true, true, true];
-  checkingCnt = [3, 6, 10];
+  joinGroup = [false, true, true];
+  writeThesis = [false, true, true];
+  checkingCnt = [0, 4, 10];
   backpack.senseOfDirection = 1000;
   backpack.bow = backpack.gun = backpack.sword = backpack.rpg =
     backpack.laser = 10;
